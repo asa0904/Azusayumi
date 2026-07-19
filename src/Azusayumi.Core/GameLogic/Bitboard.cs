@@ -55,6 +55,18 @@ namespace Azusayumi.Core.GameLogic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool HasMultipleBits(ulong bitboard)
+        {
+            return (bitboard & (bitboard - 1)) != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool HasSingleBit(ulong bitboard)
+        {
+            return bitboard != 0 && (bitboard & (bitboard - 1)) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ulong GetBetweenSquares(int included, int excluded)
         {
             return _betweenTable[(included << 6) | excluded];
