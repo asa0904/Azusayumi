@@ -338,5 +338,31 @@ namespace Azusayumi.Core.GameLogic
                                          : (White.GetPawnRightAttacks(pieces) | White.GetPawnLeftAttacks(pieces));
             return attackedBB;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool CanCastleKingside<TColor>(int castlingRights, ulong attackedBB) where TColor : struct, IColor
+        {
+            int castlingRight = TColor.IsWhite ? Castling.WhiteO_O : Castling.BlackO_O;
+            if ((castlingRights & castlingRight) == 0) { return false; }
+
+            ulong F1G1 = TColor.IsWhite ? (Bitboard.F1 | Bitboard.G1) : (Bitboard.F8 | Bitboard.G8);
+            if ((F1G1 & _occupancy) != 0) { return false; }
+
+            ulong E1G1 = TColor.IsWhite ? (Bitboard.E1 | Bitboard.F1 | Bitboard.G1) : (Bitboard.E8 | Bitboard.F8 | Bitboard.G8);
+            return (E1G1 & attackedBB) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool CanCastleQueenside<TColor>(int castlingRights, ulong attackedBB) where TColor : struct, IColor
+        {
+            int castlingRight = TColor.IsWhite ? Castling.WhiteO_O_O : Castling.BlackO_O_O;
+            if ((castlingRights & castlingRight) == 0) { return false; }
+
+            ulong D1B1 = TColor.IsWhite ? (Bitboard.D1 | Bitboard.C1 | Bitboard.B1) : (Bitboard.D8 | Bitboard.C8 | Bitboard.B8);
+            if ((D1B1 & _occupancy) != 0) { return false; }
+
+            ulong E1C1 = TColor.IsWhite ? (Bitboard.E1 | Bitboard.D1 | Bitboard.C1) : (Bitboard.E8 | Bitboard.D8 | Bitboard.C8);
+            return (E1C1 & attackedBB) == 0;
+        }
     }
 }
