@@ -1,3 +1,5 @@
+﻿using System.Runtime.CompilerServices;
+
 namespace Azusayumi.Core.GameLogic
 {
     internal static class Color
@@ -21,5 +23,23 @@ namespace Azusayumi.Core.GameLogic
         internal const int A7 = 48, B7 = 49, C7 = 50, D7 = 51, E7 = 52, F7 = 53, G7 = 54, H7 = 55;
         internal const int A8 = 56, B8 = 57, C8 = 58, D8 = 59, E8 = 60, F8 = 61, G8 = 62, H8 = 63;
         internal const int None = 64, Length = 64;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int GetRank(int squareIndex)
+        {
+            return squareIndex >> 3;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int GetFile(int squareIndex)
+        {
+            return squareIndex & 7;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int GetIndex(int rank, int file)
+        {
+            return (rank << 3) | file;
+        }
     }
 }
