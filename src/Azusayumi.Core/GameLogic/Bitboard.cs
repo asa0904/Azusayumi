@@ -32,6 +32,8 @@ namespace Azusayumi.Core.GameLogic
         internal const ulong FileG = FileA << 6;
         internal const ulong FileH = FileA << 7;
 
+        private static readonly ulong[] _betweenTable = GenerateBetweenTable();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int GetLsb(ulong bitboard)
         {
@@ -50,6 +52,66 @@ namespace Azusayumi.Core.GameLogic
         internal static int PopCount(ulong bitboard)
         {
             return BitOperations.PopCount(bitboard);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ulong GetBetweenSquares(int included, int excluded)
+        {
+            return _betweenTable[(included << 6) | excluded];
+        }
+
+        private static ulong[] GenerateBetweenTable()
+        {
+            static ulong CalculateRay(int squareIndex, (int X, int Y) direction, ulong occupancy)
+            {
+                int rank = Square.GetRank(squareIndex);
+                int file = Square.GetFile(squareIndex);
+                occupancy ^= 1UL << Square.GetIndex(rank, file);
+
+                ulong ray = 0UL;
+                for (int sign = -1; sign <= 1; sign += 2)
+                {
+                    int r = rank, f = file;
+                    while (0 <= r && r < 8 && 0 <= f && f < 8)
+                    {
+                        ray |= 1UL << Square.GetIndex(r, f);
+                        if ((ray & occupancy) != 0) { break; }
+
+                        r += sign * direction.X;
+                        f += sign * direction.Y;
+                    }
+                }
+
+                return ray;
+            }
+
+            (int, int) virtical = (0, 1), holizontal = (1, 0), diagonal = (1, 1), antiDiagonal = (-1, 1);
+            ulong[] table = new ulong[Square.Length * Square.Length];
+            for (int included = 0; included < Square.Length; included++)
+            {
+                for (int excluded = 0; excluded < Square.Length; excluded++)
+                {
+                    table[(included << 6) | excluded] = 1UL << included;
+
+                    if (included == excluded) { continue; }
+
+                    ulong occpancy = (1UL << included) | (1UL << excluded);
+
+                    ulong line = CalculateRay(included, virtical, occpancy) & CalculateRay(excluded, virtical, occpancy);
+                    if (line != 0) { table[(included << 6) | excluded] = line ^ (1UL << excluded); continue; }
+
+                    line = CalculateRay(included, holizontal, occpancy) & CalculateRay(excluded, holizontal, occpancy);
+                    if (line != 0) { table[(included << 6) | excluded] = line ^ (1UL << excluded); continue; }
+
+                    line = CalculateRay(included, diagonal, occpancy) & CalculateRay(excluded, diagonal, occpancy);
+                    if (line != 0) { table[(included << 6) | excluded] = line ^ (1UL << excluded); continue; }
+
+                    line = CalculateRay(included, antiDiagonal, occpancy) & CalculateRay(excluded, antiDiagonal, occpancy);
+                    if (line != 0) { table[(included << 6) | excluded] = line ^ (1UL << excluded); continue; }
+                }
+            }
+
+            return table;
         }
     }
 }
