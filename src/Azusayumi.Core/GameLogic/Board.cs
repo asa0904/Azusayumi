@@ -307,5 +307,16 @@ namespace Azusayumi.Core.GameLogic
         {
             return TColor.IsWhite ? _whiteKingIndex : _blackKingIndex;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsInCheck<TColor>() where TColor : struct, IColor
+        {
+            int   kingIndex = GetKingIndex<TColor>();
+            ulong occupancy = _occupancy;
+            return (Attacks.GetBishopAttacks(kingIndex, occupancy) & (GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Bishop))) != 0
+                || (Attacks.GetRookAttacks(kingIndex, occupancy)   & (GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Rook)))   != 0
+                || (Attacks.GetKnightAttacks(kingIndex)            & GetEnemies<TColor>(PieceType.Knight)) != 0
+                || (Attacks.GetPawnAttacks<TColor>(kingIndex)      & GetEnemies<TColor>(PieceType.Pawn))   != 0;
+        }
     }
 }
