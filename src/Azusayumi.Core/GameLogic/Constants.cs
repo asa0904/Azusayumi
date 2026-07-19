@@ -50,4 +50,36 @@ namespace Azusayumi.Core.GameLogic
             return $"{file}{rank}";
         }
     }
+
+    internal static class Castling
+    {
+        internal const int WhiteO_O   = 1;
+        internal const int WhiteO_O_O = 1 << 1;
+        internal const int BlackO_O   = 1 << 2;
+        internal const int BlackO_O_O = 1 << 3;
+        internal const int Length     = 1 << 4;
+
+        private static readonly int[] _lostRightsTable = GenerateLostRightsTable();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int GetLostRights(int squareIndex)
+        {
+            return _lostRightsTable[squareIndex];
+        }
+
+        private static int[] GenerateLostRightsTable()
+        {
+            int[] table = new int[Square.Length];
+
+            table[Square.A1] = WhiteO_O_O;
+            table[Square.E1] = WhiteO_O | WhiteO_O_O;
+            table[Square.H1] = WhiteO_O;
+
+            table[Square.A8] = BlackO_O_O;
+            table[Square.E8] = BlackO_O | BlackO_O_O;
+            table[Square.H8] = BlackO_O;
+
+            return table;
+        }
+    }
 }
