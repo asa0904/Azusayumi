@@ -318,5 +318,25 @@ namespace Azusayumi.Core.GameLogic
                 || (Attacks.GetKnightAttacks(kingIndex)            & GetEnemies<TColor>(PieceType.Knight)) != 0
                 || (Attacks.GetPawnAttacks<TColor>(kingIndex)      & GetEnemies<TColor>(PieceType.Pawn))   != 0;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ulong CalculateAttackedBB<TColor>(ulong occupancy) where TColor : struct, IColor
+        {
+            ulong attackedBB = Attacks.GetKingAttacks(TColor.IsWhite ? GetKingIndex<Black>() : GetKingIndex<White>());
+
+            ulong pieces = GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Bishop);
+            while (pieces != 0) { attackedBB |= Attacks.GetBishopAttacks(Bitboard.PopLsb(ref pieces), occupancy); }
+            
+            pieces = GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Rook);
+            while (pieces != 0) { attackedBB |= Attacks.GetRookAttacks(Bitboard.PopLsb(ref pieces), occupancy); }
+
+            pieces = GetEnemies<TColor>(PieceType.Knight);
+            while (pieces != 0) { attackedBB |= Attacks.GetKnightAttacks(Bitboard.PopLsb(ref pieces)); }
+
+            pieces = GetEnemies<TColor>(PieceType.Pawn);
+            attackedBB |= TColor.IsWhite ? (Black.GetPawnRightAttacks(pieces) | Black.GetPawnLeftAttacks(pieces))
+                                         : (White.GetPawnRightAttacks(pieces) | White.GetPawnLeftAttacks(pieces));
+            return attackedBB;
+        }
     }
 }
