@@ -9,6 +9,10 @@ namespace Azusayumi.Core.GameLogic
         private static readonly ulong[] _knightAttacks    = GenerateKnightTable();
         private static readonly ulong[] _kingAttacks      = GenerateKingTable();
 
+        private static readonly MagicEntry[] _bishopMagics   = GenerateBishopMagics();
+        private static readonly MagicEntry[] _rookMagics     = GenerateRookMagics();
+        private static readonly ulong[]      _slidingAttacks = GenerateSlidingAttacksTable(_bishopMagics, _rookMagics);
+
         private readonly struct MagicEntry(ulong mask, ulong magic, int offset)
         {
             internal readonly ulong Mask   = mask;
@@ -32,6 +36,26 @@ namespace Azusayumi.Core.GameLogic
         internal static ulong GetKingAttacks(int squareIndex)
         {
             return _kingAttacks[squareIndex];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ulong GetBishopAttacks(int squareIndex, ulong occupancy)
+        {
+            MagicEntry entry = _bishopMagics[squareIndex];
+            return _slidingAttacks[entry.Offset + (int)(((occupancy | entry.Mask) * entry.Magic) >> 55)];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ulong GetRookAttacks(int squareIndex, ulong occupancy)
+        {
+            MagicEntry entry = _rookMagics[squareIndex];
+            return _slidingAttacks[entry.Offset + (int)(((occupancy | entry.Mask) * entry.Magic) >> 52)];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ulong GetQueenAttacks(int squareIndex, ulong occupancy)
+        {
+            return GetBishopAttacks(squareIndex, occupancy) | GetRookAttacks(squareIndex, occupancy);
         }
 
         private static ulong[] GenerateWhitePawnTable()
