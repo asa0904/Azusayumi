@@ -364,5 +364,261 @@ namespace Azusayumi.Core.GameLogic
             ulong E1C1 = TColor.IsWhite ? (Bitboard.E1 | Bitboard.D1 | Bitboard.C1) : (Bitboard.E8 | Bitboard.D8 | Bitboard.C8);
             return (E1C1 & attackedBB) == 0;
         }
+
+        internal void MakeMove<TColor>(Move move) where TColor : struct, IColor
+        {
+            _gameStates[_ply + 1] = _gameStates[_ply];
+            ref GameState state = ref _gameStates[++_ply];
+
+            int moveType    = move.Type;
+            int originIndex = move.OriginIndex;
+            int targetIndex = move.TargetIndex;
+            
+            state.HalfmoveClock++;
+
+            if (moveType == MoveType.Castling)
+            {
+                int offset = move.CastlingOffset; // 2 for kingside, 0 for queenside.
+                int rookOriginIndex = targetIndex;
+                int rookTargetIndex = (TColor.IsWhite ? Square.D1 : Square.D8) + offset;
+
+                targetIndex = (TColor.IsWhite ? Square.C1 : Square.C8) + (offset << 1);
+
+                ulong diff = (1UL << rookOriginIndex) | (1UL << rookTargetIndex);
+                _occupancy ^= diff;
+                if (TColor.IsWhite)
+                {
+                    _whitePieces ^= diff;
+                    _whiteBitboards[PieceType.Rook] ^= diff;
+                }
+                else
+                {
+                    _blackPieces ^= diff;
+                    _blackBitboards[PieceType.Rook] ^= diff;
+                }
+                
+                _pieceTypes[rookOriginIndex] = PieceType.None;
+                _pieceTypes[rookTargetIndex] = PieceType.Rook;
+
+                state.Key ^= Zobrist.GetPositionKey<TColor>(PieceType.Rook, rookOriginIndex)
+                           ^ Zobrist.GetPositionKey<TColor>(PieceType.Rook, rookTargetIndex);
+
+                int lostRights = state.CastlingRights & (TColor.IsWhite ? 0b0011 : 0b1100);
+                state.CastlingRights ^= (byte)lostRights;
+                state.Key ^= Zobrist.GetCastlingRightKey(lostRights);
+            }
+            else if (state.CastlingRights != 0)
+            {
+                int lostRights = state.CastlingRights & (Castling.GetLostRights(originIndex) | Castling.GetLostRights(targetIndex));
+                state.CastlingRights ^= (byte)lostRights;
+                state.Key ^= Zobrist.GetCastlingRightKey(lostRights);
+            }
+
+            int capturedType = moveType == MoveType.EnPassant ? PieceType.Pawn : _pieceTypes[targetIndex];
+            state.CapturedPiece = (byte)capturedType;
+            if (capturedType != PieceType.None)
+            {
+                int capturedIndex = targetIndex;
+
+                if (moveType == MoveType.EnPassant)
+                {
+                    capturedIndex -= TColor.Up;
+                    _pieceTypes[capturedIndex] = PieceType.None;
+                }
+
+                ulong diff = 1UL << capturedIndex;
+                _occupancy ^= diff;
+                if (TColor.IsWhite)
+                {
+                    _blackPieces ^= diff;
+                    _blackBitboards[capturedType] ^= diff;
+
+                    state.Key ^= Zobrist.GetPositionKey<Black>(capturedType, capturedIndex);
+                }
+                else
+                {
+                    _whitePieces ^= diff;
+                    _whiteBitboards[capturedType] ^= diff;
+
+                    state.Key ^= Zobrist.GetPositionKey<White>(capturedType, capturedIndex);
+                }
+
+                state.HalfmoveClock = 0;
+            }
+
+            int pieceType = _pieceTypes[originIndex];
+            {
+                ulong diff = (1UL << originIndex) | (1UL << targetIndex);
+                _occupancy ^= diff;
+                if (TColor.IsWhite)
+                {
+                    _whitePieces ^= diff;
+                    _whiteBitboards[pieceType] ^= diff;
+                }
+                else
+                {
+                    _blackPieces ^= diff;
+                    _blackBitboards[pieceType] ^= diff;
+                }
+            }
+
+            _pieceTypes[originIndex] = PieceType.None;
+            _pieceTypes[targetIndex] = pieceType;
+
+            state.Key ^= Zobrist.GetPositionKey<TColor>(pieceType, originIndex)
+                       ^ Zobrist.GetPositionKey<TColor>(pieceType, targetIndex);
+
+            if (state.EnPassantIndex != Square.None)
+            {
+                state.Key ^= Zobrist.GetEnPassantKey(state.EnPassantIndex);
+                state.EnPassantIndex = Square.None;
+            }
+
+            if (pieceType == PieceType.Pawn)
+            {
+                if ((targetIndex ^ originIndex) == 16
+                 && (Attacks.GetPawnAttacks<TColor>(targetIndex - TColor.Up) & GetEnemies<TColor>(PieceType.Pawn)) != 0)
+                {
+                    state.EnPassantIndex = (byte)(targetIndex - TColor.Up);
+                    state.Key ^= Zobrist.GetEnPassantKey(state.EnPassantIndex);
+                }
+
+                else if (moveType == MoveType.Promotion)
+                {
+                    int promotionType = move.PromotionType;
+
+                    ulong diff = 1UL << targetIndex;
+                    if (TColor.IsWhite)
+                    {
+                        _whiteBitboards[PieceType.Pawn] ^= diff;
+                        _whiteBitboards[promotionType]  ^= diff;
+                    }
+                    else
+                    {
+                        _blackBitboards[PieceType.Pawn] ^= diff;
+                        _blackBitboards[promotionType]  ^= diff;
+                    }
+
+                    _pieceTypes[targetIndex] = promotionType;
+
+                    // Pawns on the back rank have a hash value of zero, so no update is needed.
+                    state.Key ^= Zobrist.GetPositionKey<TColor>(promotionType, targetIndex);
+                }
+
+                state.HalfmoveClock = 0;
+            }
+            else if (pieceType == PieceType.King)
+            {
+                if (TColor.IsWhite) { _whiteKingIndex = targetIndex; }
+                else                { _blackKingIndex = targetIndex; }
+            }
+
+            _sideToMove ^= 1;
+            state.Key ^= Zobrist.GetTurnKey();
+        }
+
+        internal void UnmakeMove<TColor>(Move move) where TColor : struct, IColor
+        {
+            _sideToMove ^= 1;
+
+            int moveType    = move.Type;
+            int originIndex = move.OriginIndex;
+            int targetIndex = move.TargetIndex;
+            
+            if (moveType == MoveType.Castling)
+            {
+                int offset = move.CastlingOffset; // 2 for kingside, 0 for queenside.
+                int rookOriginIndex = targetIndex;
+                int rookTargetIndex = (TColor.IsWhite ? Square.D1 : Square.D8) + offset;
+
+                targetIndex = (TColor.IsWhite ? Square.C1 : Square.C8) + (offset << 1);
+
+                ulong diff = (1UL << rookOriginIndex) | (1UL << rookTargetIndex);
+                _occupancy ^= diff;
+                if (TColor.IsWhite)
+                {
+                    _whitePieces ^= diff;
+                    _whiteBitboards[PieceType.Rook] ^= diff;
+                }
+                else
+                {
+                    _blackPieces ^= diff;
+                    _blackBitboards[PieceType.Rook] ^= diff;
+                }
+                
+                _pieceTypes[rookOriginIndex] = PieceType.Rook;
+                _pieceTypes[rookTargetIndex] = PieceType.None;
+            }
+
+            int pieceType = _pieceTypes[targetIndex];
+
+            if (moveType == MoveType.Promotion)
+            {
+                int promotionType = move.PromotionType;
+
+                pieceType = PieceType.Pawn;
+
+                ulong diff = 1UL << targetIndex;
+                if (TColor.IsWhite)
+                {
+                    _whiteBitboards[PieceType.Pawn] ^= diff;
+                    _whiteBitboards[promotionType]  ^= diff;
+                }
+                else
+                {
+                    _blackBitboards[PieceType.Pawn] ^= diff;
+                    _blackBitboards[promotionType]  ^= diff;
+                }
+
+                _pieceTypes[targetIndex] = PieceType.Pawn;
+            }
+
+            {
+                ulong diff = (1UL << originIndex) | (1UL << targetIndex);
+                _occupancy ^= diff;
+                if (TColor.IsWhite)
+                {
+                    _whitePieces ^= diff;
+                    _whiteBitboards[pieceType] ^= diff;
+                }
+                else
+                {
+                    _blackPieces ^= diff;
+                    _blackBitboards[pieceType] ^= diff;
+                }
+            }
+
+            _pieceTypes[originIndex] = pieceType;
+            _pieceTypes[targetIndex] = PieceType.None;
+
+            if (pieceType == PieceType.King)
+            {
+                if (TColor.IsWhite) { _whiteKingIndex = originIndex; }
+                else                { _blackKingIndex = originIndex; }
+            }
+
+            int capturedType = _gameStates[_ply].CapturedPiece;
+            if (capturedType != PieceType.None)
+            {
+                if (moveType == MoveType.EnPassant) { targetIndex -= TColor.Up; }
+
+                ulong diff = 1UL << targetIndex;
+                _occupancy ^= diff;
+                if (TColor.IsWhite)
+                {
+                    _blackPieces ^= diff;
+                    _blackBitboards[capturedType] ^= diff;
+                }
+                else
+                {
+                    _whitePieces ^= diff;
+                    _whiteBitboards[capturedType] ^= diff;
+                }
+                
+                _pieceTypes[targetIndex] = capturedType;
+            }
+
+            --_ply;
+        }
     }
 }
