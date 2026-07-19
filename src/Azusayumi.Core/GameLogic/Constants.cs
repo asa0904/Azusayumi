@@ -41,5 +41,13 @@ namespace Azusayumi.Core.GameLogic
         {
             return (rank << 3) | file;
         }
+
+        internal static string ToCoordinate(int squareIndex)
+        {
+            char file = (char)('a' + GetFile(squareIndex));
+            char rank = (char)('1' + GetRank(squareIndex));
+
+            return $"{file}{rank}";
+        }
     }
 }
