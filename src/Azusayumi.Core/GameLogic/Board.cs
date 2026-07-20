@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Azusayumi.Core.Evaluation;
+using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.GameLogic
 {
@@ -8,6 +9,8 @@ namespace Azusayumi.Core.GameLogic
         private          int         _sideToMove;
         private          int         _whiteKingIndex;
         private          int         _blackKingIndex;
+        private          int         _whitePhase;
+        private          int         _blackPhase;
         private          ulong       _occupancy;
         private          ulong       _whitePieces;
         private          ulong       _blackPieces;
@@ -80,6 +83,9 @@ namespace Azusayumi.Core.GameLogic
             for (int i = 0; i < _blackBitboards.Length; i++) { _blackBitboards[i] = 0UL; }
             for (int i = 0; i < _pieceTypes.Length; i++) { _pieceTypes[i] = PieceType.None; }
 
+            _whitePhase = 0;
+            _blackPhase = 0;
+
             ulong key = 0UL;
 
             int squareIndex = Square.A8;
@@ -114,12 +120,16 @@ namespace Azusayumi.Core.GameLogic
                         _whitePieces |= square;
                         _whiteBitboards[pieceType] |= square;
 
+                        _whitePhase += GamePhase.GetWeight(pieceType);
+
                         key ^= Zobrist.GetPositionKey<White>(pieceType, squareIndex);
                     }
                     else
                     {
                         _blackPieces |= square;
                         _blackBitboards[pieceType] |= square;
+
+                        _blackPhase += GamePhase.GetWeight(pieceType);
 
                         key ^= Zobrist.GetPositionKey<Black>(pieceType, squareIndex);
                     }
@@ -309,6 +319,18 @@ namespace Azusayumi.Core.GameLogic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetPhase()
+        {
+            return Math.Min(GamePhase.Max, _whitePhase + _blackPhase);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetPhase<TColor>() where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? _whitePhase : _blackPhase;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsInCheck<TColor>() where TColor : struct, IColor
         {
             int   kingIndex = GetKingIndex<TColor>();
@@ -433,12 +455,16 @@ namespace Azusayumi.Core.GameLogic
                     _blackPieces ^= diff;
                     _blackBitboards[capturedType] ^= diff;
 
+                    _blackPhase -= GamePhase.GetWeight(capturedType);
+
                     state.Key ^= Zobrist.GetPositionKey<Black>(capturedType, capturedIndex);
                 }
                 else
                 {
                     _whitePieces ^= diff;
                     _whiteBitboards[capturedType] ^= diff;
+
+                    _whitePhase -= GamePhase.GetWeight(capturedType);
 
                     state.Key ^= Zobrist.GetPositionKey<White>(capturedType, capturedIndex);
                 }
@@ -492,11 +518,15 @@ namespace Azusayumi.Core.GameLogic
                     {
                         _whiteBitboards[PieceType.Pawn] ^= diff;
                         _whiteBitboards[promotionType]  ^= diff;
+
+                        _whitePhase += GamePhase.GetWeight(promotionType);
                     }
                     else
                     {
                         _blackBitboards[PieceType.Pawn] ^= diff;
                         _blackBitboards[promotionType]  ^= diff;
+
+                        _blackPhase += GamePhase.GetWeight(promotionType);
                     }
 
                     _pieceTypes[targetIndex] = promotionType;
@@ -563,11 +593,15 @@ namespace Azusayumi.Core.GameLogic
                 {
                     _whiteBitboards[PieceType.Pawn] ^= diff;
                     _whiteBitboards[promotionType]  ^= diff;
+
+                    _whitePhase -= GamePhase.GetWeight(promotionType);
                 }
                 else
                 {
                     _blackBitboards[PieceType.Pawn] ^= diff;
                     _blackBitboards[promotionType]  ^= diff;
+
+                    _blackPhase -= GamePhase.GetWeight(promotionType);
                 }
 
                 _pieceTypes[targetIndex] = PieceType.Pawn;
@@ -608,11 +642,15 @@ namespace Azusayumi.Core.GameLogic
                 {
                     _blackPieces ^= diff;
                     _blackBitboards[capturedType] ^= diff;
+
+                    _blackPhase += GamePhase.GetWeight(capturedType);
                 }
                 else
                 {
                     _whitePieces ^= diff;
                     _whiteBitboards[capturedType] ^= diff;
+
+                    _whitePhase += GamePhase.GetWeight(capturedType);
                 }
                 
                 _pieceTypes[targetIndex] = capturedType;
