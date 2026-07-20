@@ -22,6 +22,7 @@ namespace Azusayumi.Core.GameLogic
         private struct GameState
         {
             internal ulong Key;
+            internal Score Score;
             internal byte  CastlingRights;
             internal byte  EnPassantIndex;
             internal byte  HalfmoveClock;
@@ -58,6 +59,12 @@ namespace Azusayumi.Core.GameLogic
             get => _gameStates[_ply].Key;
         }
 
+        internal Score Score
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _gameStates[_ply].Score;
+        }
+
         internal int CastlingRights
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -87,6 +94,7 @@ namespace Azusayumi.Core.GameLogic
             _blackPhase = 0;
 
             ulong key = 0UL;
+            Score score = Score.Zero;
 
             int squareIndex = Square.A8;
             foreach (char symbol in section)
@@ -123,6 +131,7 @@ namespace Azusayumi.Core.GameLogic
                         _whitePhase += GamePhase.GetWeight(pieceType);
 
                         key ^= Zobrist.GetPositionKey<White>(pieceType, squareIndex);
+                        score += PieceSquareTables.GetScore<White>(pieceType, squareIndex);
                     }
                     else
                     {
@@ -132,6 +141,7 @@ namespace Azusayumi.Core.GameLogic
                         _blackPhase += GamePhase.GetWeight(pieceType);
 
                         key ^= Zobrist.GetPositionKey<Black>(pieceType, squareIndex);
+                        score += PieceSquareTables.GetScore<Black>(pieceType, squareIndex);
                     }
                     
                     _pieceTypes[squareIndex] = pieceType;
@@ -188,6 +198,7 @@ namespace Azusayumi.Core.GameLogic
             _gameStates[_ply] = new GameState()
             {
                 Key            = key,
+                Score          = score,
                 CastlingRights = (byte)castlingRights,
                 EnPassantIndex = (byte)enPassantIndex,
                 HalfmoveClock  = (byte)halfmoveClock,
@@ -424,6 +435,9 @@ namespace Azusayumi.Core.GameLogic
 
                 state.Key ^= Zobrist.GetPositionKey<TColor>(PieceType.Rook, rookOriginIndex)
                            ^ Zobrist.GetPositionKey<TColor>(PieceType.Rook, rookTargetIndex);
+                
+                state.Score += PieceSquareTables.GetScore<TColor>(PieceType.Rook, rookTargetIndex)
+                             - PieceSquareTables.GetScore<TColor>(PieceType.Rook, rookOriginIndex);
 
                 int lostRights = state.CastlingRights & (TColor.IsWhite ? 0b0011 : 0b1100);
                 state.CastlingRights ^= (byte)lostRights;
@@ -458,6 +472,7 @@ namespace Azusayumi.Core.GameLogic
                     _blackPhase -= GamePhase.GetWeight(capturedType);
 
                     state.Key ^= Zobrist.GetPositionKey<Black>(capturedType, capturedIndex);
+                    state.Score -= PieceSquareTables.GetScore<Black>(capturedType, capturedIndex);
                 }
                 else
                 {
@@ -467,6 +482,7 @@ namespace Azusayumi.Core.GameLogic
                     _whitePhase -= GamePhase.GetWeight(capturedType);
 
                     state.Key ^= Zobrist.GetPositionKey<White>(capturedType, capturedIndex);
+                    state.Score -= PieceSquareTables.GetScore<White>(capturedType, capturedIndex);
                 }
 
                 state.HalfmoveClock = 0;
@@ -493,6 +509,9 @@ namespace Azusayumi.Core.GameLogic
 
             state.Key ^= Zobrist.GetPositionKey<TColor>(pieceType, originIndex)
                        ^ Zobrist.GetPositionKey<TColor>(pieceType, targetIndex);
+            
+            state.Score += PieceSquareTables.GetScore<TColor>(pieceType, targetIndex)
+                         - PieceSquareTables.GetScore<TColor>(pieceType, originIndex);
 
             if (state.EnPassantIndex != Square.None)
             {
@@ -533,6 +552,9 @@ namespace Azusayumi.Core.GameLogic
 
                     // Pawns on the back rank have a hash value of zero, so no update is needed.
                     state.Key ^= Zobrist.GetPositionKey<TColor>(promotionType, targetIndex);
+                    
+                    state.Score += PieceSquareTables.GetScore<TColor>(promotionType, targetIndex)
+                                 - PieceSquareTables.GetScore<TColor>(PieceType.Pawn, targetIndex);
                 }
 
                 state.HalfmoveClock = 0;
