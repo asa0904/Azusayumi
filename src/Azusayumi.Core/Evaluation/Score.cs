@@ -32,6 +32,13 @@ namespace Azusayumi.Core.Evaluation
             get => (short)_packed;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal readonly int Interpolate(int phase)
+        {
+            int scaledPhase = ((phase * 256) + (GamePhase.Max / 2)) / GamePhase.Max;
+            return ((Mid * scaledPhase) + (End * (256 - scaledPhase))) / 256;
+        }
+
         public static implicit operator Score((short Mid, short End) score)
         {
             return new Score(score.Mid, score.End);
