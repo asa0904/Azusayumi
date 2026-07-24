@@ -27,25 +27,12 @@ namespace Azusayumi.Core.Tests.GameLogic
             }
 
             long nodes = 0L;
-            if (board.IsWhiteToMove)
+            for (int i = 0; i < moves.Length; i++)
             {
-                for (int i = 0; i < moves.Length; i++)
-                {
-                    Move move = moves[i];
-                    board.MakeMove<White>(move);
-                    nodes += CountNodes(board, depth - 1);
-                    board.UnmakeMove<White>(move);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < moves.Length; i++)
-                {
-                    Move move = moves[i];
-                    board.MakeMove<Black>(move);
-                    nodes += CountNodes(board, depth - 1);
-                    board.UnmakeMove<Black>(move);
-                }
+                Move move = moves[i];
+                board.MakeMove(move);
+                nodes += CountNodes(board, depth - 1);
+                board.UnmakeMove(move);
             }
 
             return nodes;
