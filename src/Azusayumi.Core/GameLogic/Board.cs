@@ -398,6 +398,16 @@ namespace Azusayumi.Core.GameLogic
             return (E1C1 & attackedBB) == 0;
         }
 
+        internal void MakeMove(Move move)
+        {
+            if (IsWhiteToMove) { MakeMove<White>(move); } else { MakeMove<Black>(move); }
+        }
+
+        internal void UnmakeMove(Move move)
+        {
+            if (IsWhiteToMove) { UnmakeMove<Black>(move); } else { UnmakeMove<White>(move); }
+        }
+
         internal void MakeMove<TColor>(Move move) where TColor : struct, IColor
         {
             _gameStates[_ply + 1] = _gameStates[_ply];
