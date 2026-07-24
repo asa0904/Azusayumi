@@ -9,11 +9,16 @@ namespace Azusayumi.Core.Tests.GameLogic
         {
             return new()
             {
-                { "Quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",            "d2d4"  },
-                { "Capture move",   "rnbqk2r/ppp2ppp/4pn2/3p4/2PP4/2b1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1",   "b2c3"  },
-                { "Castling move",  "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1h1"  },
-                { "EnPassant move", "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",                                   "e5d6"  },
-                { "Promotion move", "5b2/3KPk2/8/8/8/8/8/8 w - - 0 1",                                     "e7e8q" },
+                { "White quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",            "d2d4"  },
+                { "Black quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1",            "d7d5"  },
+                { "White capture move",   "rnbqk2r/ppp2ppp/4pn2/3p4/2PP4/2b1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1",   "b2c3"  },
+                { "Black capture move",   "r1bqkb1r/pp3ppp/2B1pn2/2pp4/3P4/4PN2/PPP2PPP/RNBQK2R b KQkq - 0 1",   "b7c6"  },
+                { "White castling move",  "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1h1"  },
+                { "Black castling move",  "rnbqk2r/pppp1ppp/5n2/b3p3/4P3/P1N2N2/1PPP1PPP/R1BQKB1R b KQkq - 0 1", "e8h8"  },
+                { "White enPassant move", "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",                                   "e5d6"  },
+                { "Black enPassant move", "4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1",                                   "e4d3"  },
+                { "White promotion move", "4k3/2P5/8/8/8/8/8/4K3 w - - 0 1",                                     "c7c8q" },
+                { "Black promotion move", "4k3/8/8/8/8/8/2p5/4K3 b - - 0 1",                                     "c2c1q" },
             };
         }
 
@@ -21,10 +26,10 @@ namespace Azusayumi.Core.Tests.GameLogic
         [MemberData(nameof(GetIncrementalUpdateTestData))]
         public void MakeMove_SingleMove_MatchesRecalculatedKey(string scenario, string fen, string stringMove)
         {
-            Board board = new(fen, historyCapacity: 2);
+            Board board = new(fen, historyCapacity: 3);
             Move  move  = board.ToMove(stringMove);
 
-            board.MakeMove<White>(move);
+            board.MakeMove(move);
 
             ulong expected = CalculateKey(board);
             ulong actual   = board.Key;
@@ -36,10 +41,10 @@ namespace Azusayumi.Core.Tests.GameLogic
         [MemberData(nameof(GetIncrementalUpdateTestData))]
         public void MakeMove_SingleMove_MatchesRecalculatedGamePhase(string scenario, string fen, string stringMove)
         {
-            Board board = new(fen, historyCapacity: 2);
+            Board board = new(fen, historyCapacity: 3);
             Move  move  = board.ToMove(stringMove);
 
-            board.MakeMove<White>(move);
+            board.MakeMove(move);
 
             int expectedWhitePhase = board.GetPhase<White>();
             int actualWhitePhase   = CalculatePhase(isWhite: true, board);
@@ -56,10 +61,10 @@ namespace Azusayumi.Core.Tests.GameLogic
         [MemberData(nameof(GetIncrementalUpdateTestData))]
         public void MakeMove_SingleMove_MatchesRecalculatedPstScore(string scenario, string fen, string stringMove)
         {
-            Board board = new(fen, historyCapacity: 2);
+            Board board = new(fen, historyCapacity: 3);
             Move  move  = board.ToMove(stringMove);
 
-            board.MakeMove<White>(move);
+            board.MakeMove(move);
 
             Score expectedScore = CalculatePstScore(board);
             Score actualScore   = board.Score;
@@ -72,11 +77,11 @@ namespace Azusayumi.Core.Tests.GameLogic
         [MemberData(nameof(GetIncrementalUpdateTestData))]
         public void UnmakeMove_SingleMove_RestoresOriginalBoard(string scenario, string fen, string stringMove)
         {
-            Board board = new(fen, historyCapacity: 2);
+            Board board = new(fen, historyCapacity: 3);
             Move  move  = board.ToMove(stringMove);
             
-            board.MakeMove<White>(move);
-            board.UnmakeMove<White>(move);
+            board.MakeMove(move);
+            board.UnmakeMove(move);
 
             string expected = fen;
             string actual   = board.ToString();
