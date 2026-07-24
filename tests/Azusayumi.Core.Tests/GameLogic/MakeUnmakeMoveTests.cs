@@ -5,12 +5,20 @@ namespace Azusayumi.Core.Tests.GameLogic
 {
     public class MakeUnmakeMoveTests
     {
+        public static TheoryData<string, string, string> GetIncrementalUpdateTestData()
+        {
+            return new()
+            {
+                { "Quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",            "d2d4"  },
+                { "Capture move",   "rnbqk2r/ppp2ppp/4pn2/3p4/2PP4/2b1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1",   "b2c3"  },
+                { "Castling move",  "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1h1"  },
+                { "EnPassant move", "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",                                   "e5d6"  },
+                { "Promotion move", "5b2/3KPk2/8/8/8/8/8/8 w - - 0 1",                                     "e7e8q" },
+            };
+        }
+
         [Theory]
-        [InlineData("Quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",            "d2d4")]
-        [InlineData("Capture move",   "rnbqk2r/ppp2ppp/4pn2/3p4/2PP4/2b1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1",   "b2c3")]
-        [InlineData("Castling move",  "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1h1")]
-        [InlineData("EnPassant move", "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",                                   "e5d6")]
-        [InlineData("Promotion move", "5b2/3KPk2/8/8/8/8/8/8 w - - 0 1",                                     "e7e8q")]
+        [MemberData(nameof(GetIncrementalUpdateTestData))]
         public void MakeMove_SingleMove_MatchesRecalculatedKey(string scenario, string fen, string stringMove)
         {
             Board board = new(fen, historyCapacity: 2);
@@ -25,11 +33,7 @@ namespace Azusayumi.Core.Tests.GameLogic
         }
 
         [Theory]
-        [InlineData("Quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",            "d2d4")]
-        [InlineData("Capture move",   "rnbqk2r/ppp2ppp/4pn2/3p4/2PP4/2b1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1",   "b2c3")]
-        [InlineData("Castling move",  "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1h1")]
-        [InlineData("EnPassant move", "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",                                   "e5d6")]
-        [InlineData("Promotion move", "5b2/3KPk2/8/8/8/8/8/8 w - - 0 1",                                     "e7e8q")]
+        [MemberData(nameof(GetIncrementalUpdateTestData))]
         public void MakeMove_SingleMove_MatchesRecalculatedGamePhase(string scenario, string fen, string stringMove)
         {
             Board board = new(fen, historyCapacity: 2);
@@ -49,15 +53,11 @@ namespace Azusayumi.Core.Tests.GameLogic
         }
 
         [Theory]
-        [InlineData("Quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",            "d2d4")]
-        [InlineData("Capture move",   "rnbqk2r/ppp2ppp/4pn2/3p4/2PP4/2b1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1",   "b2c3")]
-        [InlineData("Castling move",  "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1h1")]
-        [InlineData("EnPassant move", "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",                                   "e5d6")]
-        [InlineData("Promotion move", "5b2/3KPk2/8/8/8/8/8/8 w - - 0 1",                                     "e7e8q")]
-        public void MakeMove_SingleMove_MatchesRecalculatedPstScore(string scenario, string fen, string uciMove)
+        [MemberData(nameof(GetIncrementalUpdateTestData))]
+        public void MakeMove_SingleMove_MatchesRecalculatedPstScore(string scenario, string fen, string stringMove)
         {
             Board board = new(fen, historyCapacity: 2);
-            Move  move  = board.ToMove(uciMove);
+            Move  move  = board.ToMove(stringMove);
 
             board.MakeMove<White>(move);
 
@@ -69,11 +69,7 @@ namespace Azusayumi.Core.Tests.GameLogic
         }
 
         [Theory]
-        [InlineData("Quiet move",     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",            "d2d4")]
-        [InlineData("Capture move",   "rnbqk2r/ppp2ppp/4pn2/3p4/2PP4/2b1PN2/PP3PPP/R1BQKB1R w KQkq - 0 1",   "b2c3")]
-        [InlineData("Castling move",  "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1", "e1h1")]
-        [InlineData("EnPassant move", "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",                                   "e5d6")]
-        [InlineData("Promotion move", "5b2/3KPk2/8/8/8/8/8/8 w - - 0 1",                                     "e7e8q")]
+        [MemberData(nameof(GetIncrementalUpdateTestData))]
         public void UnmakeMove_SingleMove_RestoresOriginalBoard(string scenario, string fen, string stringMove)
         {
             Board board = new(fen, historyCapacity: 2);
