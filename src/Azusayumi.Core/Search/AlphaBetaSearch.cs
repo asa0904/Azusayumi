@@ -8,6 +8,7 @@ namespace Azusayumi.Core.Search
         {
             if (depth == 0) { return Quiesce<TColor>(ply, alpha, beta); }
 
+            _nodes++;
             _pvTable.Clear(ply);
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }

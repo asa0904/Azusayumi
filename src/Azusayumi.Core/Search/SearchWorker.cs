@@ -11,6 +11,8 @@ namespace Azusayumi.Core.Search
         private const int MateValue = 10000;
         private const int DrawValue = 0;
 
+        private long _nodes;
+
         private readonly Board         _board         = new();
         private readonly MoveArrayPool _moveArrayPool = new();
         private readonly PVTable       _pvTable       = new();
@@ -55,6 +57,12 @@ namespace Azusayumi.Core.Search
             {
                 return _moves.AsSpan().Slice(ply * MaxLength, MaxLength);
             }
+        }
+
+        internal long NodesSpent
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _nodes;
         }
     }
 }

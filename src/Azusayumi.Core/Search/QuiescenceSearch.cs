@@ -7,6 +7,7 @@ namespace Azusayumi.Core.Search
     {
         internal int Quiesce<TColor>(int ply, int alpha, int beta) where TColor : struct, IColor
         {
+            _nodes++;
             _pvTable.Clear(ply);
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
