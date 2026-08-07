@@ -11,7 +11,8 @@ namespace Azusayumi.Core.Search
         private const int MateValue = 10000;
         private const int DrawValue = 0;
 
-        private readonly Board _board = new();
+        private readonly Board         _board         = new();
+        private readonly MoveArrayPool _moveArrayPool = new();
 
         private ref struct MoveBuffer : IMoveBuffer
         {
@@ -40,6 +41,18 @@ namespace Azusayumi.Core.Search
             internal void Clear()
             {
                 _count = 0;
+            }
+        }
+
+        private class MoveArrayPool
+        {
+            private const int MaxLength = 256;
+            private readonly ScoredMove[] _moves = new ScoredMove[MaxLength * MaxPly];
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal Span<ScoredMove> GetSpan(int ply)
+            {
+                return _moves.AsSpan().Slice(ply * MaxLength, MaxLength);
             }
         }
     }
