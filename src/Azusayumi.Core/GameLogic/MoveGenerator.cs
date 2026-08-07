@@ -94,6 +94,38 @@ namespace Azusayumi.Core.GameLogic
             while (attacks != 0) { buffer.Add(new Move(kingIndex, Bitboard.PopLsb(ref attacks))); }
         }
 
+        internal static void GenerateTactialMoves<TMoveBuffer>(ref TMoveBuffer buffer, Board board)
+            where TMoveBuffer : struct, IMoveBuffer, allows ref struct
+        {
+            ulong occupancy = board.Occupancy;
+            ulong empties   = ~occupancy;
+            ulong enemies   = board.GetEnemies<TColor>();
+            int   kingIndex = board.GetKingIndex<TColor>();
+
+            ulong pinnedPieces = GeneratePinnedMoves(ref buffer, kingIndex, empties, enemies, targets: enemies, board);
+
+            ulong pawns = board.GetFriends<TColor>(PieceType.Pawn) & ~pinnedPieces;
+            ulong pawnsNotRank7 = pawns & ~TColor.Rank7;
+            GeneratePawnCaptureMoves(ref buffer, pawnsNotRank7, enemies);
+            GenerateEnPassantMoves(ref buffer, pawns, kingIndex, checker: 0UL, targets: enemies, board);
+
+            ulong pawnsRank7 = pawns & TColor.Rank7;
+            ulong pushPromotions = TColor.GetSinglePawnPush(pawnsRank7) & empties;
+            while (pushPromotions != 0)
+            {
+                int targetIndex = Bitboard.PopLsb(ref pushPromotions);
+                int originIndex = targetIndex - TColor.Up;
+                buffer.Add(new Move(MoveType.QueenPromotion, originIndex, targetIndex));
+            }
+            GenerateCapturePromotionMoves(ref buffer, pawnsRank7, enemies);
+
+            GeneratePieceMoves(ref buffer, occupancy, targets: enemies, pinnedPieces, board);
+
+            occupancy ^= 1UL << kingIndex;
+            ulong attacks = Attacks.GetKingAttacks(kingIndex) & enemies & ~board.CalculateAttackedBB<TColor>(occupancy);
+            while (attacks != 0) { buffer.Add(new Move(kingIndex, Bitboard.PopLsb(ref attacks))); }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ulong GeneratePinnedMoves<TMoveBuffer>(ref TMoveBuffer buffer, int kingIndex, ulong empties, ulong enemies, ulong targets, Board board)
             where TMoveBuffer : struct, IMoveBuffer, allows ref struct
