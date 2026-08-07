@@ -44,5 +44,11 @@ namespace Azusayumi.Core.Evaluation
 
             return score.Interpolate(board.GetPhase());
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int Evaluate<TColor>(Board board) where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? Evaluate(board) : -Evaluate(board);
+        }
     }
 }
