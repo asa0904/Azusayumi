@@ -13,6 +13,7 @@ namespace Azusayumi.Core.Search
 
         private readonly Board         _board         = new();
         private readonly MoveArrayPool _moveArrayPool = new();
+        private readonly PVTable       _pvTable       = new();
 
         private ref struct MoveBuffer : IMoveBuffer
         {

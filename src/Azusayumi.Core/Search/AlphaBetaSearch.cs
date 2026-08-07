@@ -8,6 +8,8 @@ namespace Azusayumi.Core.Search
         {
             if (depth == 0) { return Quiesce<TColor>(ply, alpha, beta); }
 
+            _pvTable.Clear(ply);
+
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
             int  bestValue = -Infinity;
@@ -35,6 +37,7 @@ namespace Azusayumi.Core.Search
                         if (value >= beta) { break; }
 
                         alpha = value;
+                        _pvTable.Write(ply, move);
                     }
                 }
             }

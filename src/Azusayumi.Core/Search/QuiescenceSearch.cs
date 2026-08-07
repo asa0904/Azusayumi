@@ -7,6 +7,8 @@ namespace Azusayumi.Core.Search
     {
         internal int Quiesce<TColor>(int ply, int alpha, int beta) where TColor : struct, IColor
         {
+            _pvTable.Clear(ply);
+
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
             bool isInCheck = _board.IsInCheck<TColor>();
@@ -40,6 +42,7 @@ namespace Azusayumi.Core.Search
                         if (value >= beta) { break; }
 
                         alpha = value;
+                        _pvTable.Write(ply, move);
                     }
                 }
             }
