@@ -353,6 +353,40 @@ namespace Azusayumi.Core.GameLogic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsDraw()
+        {
+            int halfmoveClock = _gameStates[_ply].HalfmoveClock;
+
+            // Fifty-move rule
+            if (halfmoveClock >= 100)
+            {
+                return true;
+            }
+
+            // Insufficient mating material
+            if (GetFriends<White>(PieceType.Pawn) == 0
+             && GetFriends<Black>(PieceType.Pawn) == 0
+             && GetPhase<White>() + GetPhase<Black>() <= 1)
+            {
+                return true;
+            }
+
+            // Threefold repetition
+            ulong key = Key;
+            int repetitionCount = 1;
+            for (int i = 4; i <= halfmoveClock; i += 2)
+            {
+                if (_gameStates[_ply - i].Key == key)
+                {
+                    repetitionCount++;
+                    if (repetitionCount == 3) { return true; }
+                }
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ulong CalculateAttackedBB<TColor>(ulong occupancy) where TColor : struct, IColor
         {
             ulong attackedBB = Attacks.GetKingAttacks(TColor.IsWhite ? GetKingIndex<Black>() : GetKingIndex<White>());
