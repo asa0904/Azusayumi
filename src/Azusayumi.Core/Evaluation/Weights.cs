@@ -2,7 +2,7 @@
 {
     internal class Weights
     {
-        internal static readonly Score[] Material  = new Score[5];
+        internal static readonly Score[] Material  = [(100, 100), (325, 325), (350, 350), (500, 500), (900, 900)];
         internal static readonly Score[] PawnPst   = new Score[64];
         internal static readonly Score[] KnightPst = new Score[64];
         internal static readonly Score[] BishopPst = new Score[64];
