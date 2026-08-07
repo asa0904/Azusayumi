@@ -16,14 +16,23 @@ namespace Azusayumi.Core.Evaluation
 
         private static Score[] GenerateWhiteScores()
         {
-            // Initialize with random values until parameter tuning is implemented.
-            Random random = new(2006_09_04);
             Score[] whiteScores = new Score[PieceType.Length * Square.Length];
-            for (int i = 0; i < whiteScores.Length; i++)
+            for (int pieceType = PieceType.Pawn; pieceType < PieceType.Length; pieceType++)
             {
-                short mid = (short)random.Next(-1000, 1000);
-                short end = (short)random.Next(-1000, 1000);
-                whiteScores[i] = new Score(mid, end);
+                Score material = pieceType == PieceType.King ? Score.Zero : Weights.Material[pieceType];
+                Score[] pst = pieceType switch
+                {
+                    PieceType.Pawn   => Weights.PawnPst,
+                    PieceType.Knight => Weights.KnightPst,
+                    PieceType.Bishop => Weights.BishopPst,
+                    PieceType.Rook   => Weights.RookPst,
+                    PieceType.Queen  => Weights.QueenPst,
+                    _                => Weights.KingPst,
+                };
+                for (int squareIndex = 0; squareIndex < Square.Length; squareIndex++)
+                {
+                    whiteScores[(pieceType << 6) | squareIndex] = material + pst[squareIndex ^ 56];
+                }
             }
 
             return whiteScores;
