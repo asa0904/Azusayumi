@@ -22,7 +22,7 @@ namespace Azusayumi.Core.Search
 
             MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply));
             if (isInCheck) { MoveGenerator<TColor>.GenerateEvasionMoves(ref buffer, _board); }
-            else           { MoveGenerator<TColor>.GenerateTactialMoves(ref buffer, _board); }
+            else           { MoveGenerator<TColor>.GenerateTacticalMoves(ref buffer, _board); }
             Span<ScoredMove> scoredMoves = buffer.AsSpan();
             MoveOrdering.ScoreCaptures(scoredMoves, _board);
 

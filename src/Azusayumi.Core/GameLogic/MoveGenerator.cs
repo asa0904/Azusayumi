@@ -94,7 +94,7 @@ namespace Azusayumi.Core.GameLogic
             while (attacks != 0) { buffer.Add(new Move(kingIndex, Bitboard.PopLsb(ref attacks))); }
         }
 
-        internal static void GenerateTactialMoves<TMoveBuffer>(ref TMoveBuffer buffer, Board board)
+        internal static void GenerateTacticalMoves<TMoveBuffer>(ref TMoveBuffer buffer, Board board)
             where TMoveBuffer : struct, IMoveBuffer, allows ref struct
         {
             ulong occupancy = board.Occupancy;
