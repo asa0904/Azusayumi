@@ -209,6 +209,44 @@ namespace Azusayumi.Core.GameLogic
             _blackKingIndex = Bitboard.GetLsb(GetFriends<Black>(PieceType.King));
         }
 
+        internal void CopyFrom(Board board)
+        {
+            _ply            = board._ply;
+            _sideToMove     = board._sideToMove;
+            _whiteKingIndex = board._whiteKingIndex;
+            _blackKingIndex = board._blackKingIndex;
+            _whitePhase     = board._whitePhase;
+            _blackPhase     = board._blackPhase;
+            _occupancy      = board._occupancy;
+            _whitePieces    = board._whitePieces;
+            _blackPieces    = board._blackPieces;
+            
+            _whiteBitboards[PieceType.King]   = board._whiteBitboards[PieceType.King];
+            _whiteBitboards[PieceType.Queen]  = board._whiteBitboards[PieceType.Queen];
+            _whiteBitboards[PieceType.Rook]   = board._whiteBitboards[PieceType.Rook];
+            _whiteBitboards[PieceType.Bishop] = board._whiteBitboards[PieceType.Bishop];
+            _whiteBitboards[PieceType.Knight] = board._whiteBitboards[PieceType.Knight];
+            _whiteBitboards[PieceType.Pawn]   = board._whiteBitboards[PieceType.Pawn];
+
+            _blackBitboards[PieceType.King]   = board._blackBitboards[PieceType.King];
+            _blackBitboards[PieceType.Queen]  = board._blackBitboards[PieceType.Queen];
+            _blackBitboards[PieceType.Rook]   = board._blackBitboards[PieceType.Rook];
+            _blackBitboards[PieceType.Bishop] = board._blackBitboards[PieceType.Bishop];
+            _blackBitboards[PieceType.Knight] = board._blackBitboards[PieceType.Knight];
+            _blackBitboards[PieceType.Pawn]   = board._blackBitboards[PieceType.Pawn];
+
+            for (int i = 0; i < _pieceTypes.Length; i++)
+            {
+                _pieceTypes[i] = board._pieceTypes[i];
+            }
+
+            _gameStates[_ply] = board._gameStates[_ply];
+            for (int ply = _ply - _gameStates[_ply].HalfmoveClock; ply < _ply; ply++)
+            {
+                _gameStates[ply].Key = board._gameStates[ply].Key;
+            }
+        }
+
         public override string ToString()
         {
             System.Text.StringBuilder fen = new();
