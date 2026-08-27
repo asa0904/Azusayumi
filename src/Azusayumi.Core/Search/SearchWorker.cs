@@ -64,5 +64,11 @@ namespace Azusayumi.Core.Search
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _nodes;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void CopyPosition(Board board)
+        {
+            _board.CopyFrom(board);
+        }
     }
 }
