@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Search
 {
-    internal partial class SearchWorker
+    internal partial class SearchWorker(SearchManager manager)
     {
         internal const int MaxPly = 64;
 
@@ -13,6 +13,7 @@ namespace Azusayumi.Core.Search
 
         private long _nodes;
 
+        private readonly SearchManager _manager       = manager;
         private readonly Board         _board         = new();
         private readonly MoveArrayPool _moveArrayPool = new();
         private readonly PVTable       _pvTable       = new();
