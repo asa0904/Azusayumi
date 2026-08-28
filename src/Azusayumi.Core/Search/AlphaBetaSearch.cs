@@ -6,6 +6,8 @@ namespace Azusayumi.Core.Search
     {
         private int AlphaBetaSearch<TColor>(int depth, int ply, int alpha, int beta) where TColor : struct, IColor
         {
+            if (_manager.ShouldStop(_nodes)) { return DrawValue; }
+
             if (depth == 0) { return Quiesce<TColor>(ply, alpha, beta); }
 
             _nodes++;
@@ -28,6 +30,8 @@ namespace Azusayumi.Core.Search
                 _board.MakeMove<TColor>(move);
                 int value = -OppositeAlphaBetaSearch<TColor>(depth - 1, ply + 1, -beta, -alpha);
                 _board.UnmakeMove<TColor>(move);
+
+                if (_manager.IsOver) { return DrawValue; }
 
                 if (value > bestValue)
                 {

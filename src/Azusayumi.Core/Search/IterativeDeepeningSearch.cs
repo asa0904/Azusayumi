@@ -13,6 +13,8 @@ namespace Azusayumi.Core.Search
             {
                 int score = SearchRoot(depth, alpha: -Infinity, beta: Infinity);
 
+                if (_manager.IsOver) { break; }
+
                 info.BestMove   = _pvTable.BestMove;
                 info.PonderMove = _pvTable.PonderMove;
 
@@ -48,6 +50,8 @@ namespace Azusayumi.Core.Search
                 int value = isWhiteToMove ? -AlphaBetaSearch<Black>(depth - 1, ply: 1, -beta, -alpha)
                                           : -AlphaBetaSearch<White>(depth - 1, ply: 1, -beta, -alpha);
                 _board.UnmakeMove(move);
+
+                if (_manager.IsOver) { return DrawValue; }
 
                 if (value > bestValue)
                 {
