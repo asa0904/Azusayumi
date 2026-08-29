@@ -1,4 +1,5 @@
 ﻿using Azusayumi.Core.GameLogic;
+using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Search
 {
@@ -52,6 +53,7 @@ namespace Azusayumi.Core.Search
             return bestValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int OppositeAlphaBetaSearch<TColor>(int depth, int ply, int alpha, int beta)
             where TColor : struct, IColor
         {
