@@ -48,7 +48,7 @@ namespace Azusayumi.Core.Search
                 }
             }
 
-            if (scoredMoves.Length == 0) { return _board.IsInCheck<TColor>() ? -MateValue + ply : DrawValue; }
+            if (scoredMoves.Length == 0) { return isInCheck ? -MateValue + ply : DrawValue; }
 
             return bestValue;
         }
