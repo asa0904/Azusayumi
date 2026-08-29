@@ -20,6 +20,8 @@ namespace Azusayumi.Core.Search
 
                 info.Depth = depth;
                 info.Score = score;
+                info.Nodes = _manager.NodesSpent;
+                info.Time  = _manager.TimeSpent;
 
                 TLogger.Log(info, _pvTable.PV);
             }
