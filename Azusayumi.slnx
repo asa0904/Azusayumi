@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Azusayumi.Cli/Azusayumi.Cli.csproj" Id="edc26db0-4f8e-4ac4-bb9f-48644dfad813" />
     <Project Path="src/Azusayumi.Core/Azusayumi.Core.csproj" />
   </Folder>
   <Folder Name="/tests/">
