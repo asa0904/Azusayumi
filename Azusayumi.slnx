@@ -5,6 +5,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Azusayumi.Core.Tests/Azusayumi.Core.Tests.csproj" Id="338a22e9-3c1b-4d2b-8abe-08e708953e81" />
+    <Project Path="tests/Azusayumi.Tuning.GD.Tests/Azusayumi.Tuning.GD.Tests.csproj" Id="d5677b0b-4cf7-401d-a346-7f9641403b51" />
   </Folder>
   <Folder Name="/tuning/">
     <Project Path="tuning/Azusayumi.Tuning.GD/Azusayumi.Tuning.GD.csproj" Id="3a12b621-9ad0-49af-9326-73fa5c91e81b" />
