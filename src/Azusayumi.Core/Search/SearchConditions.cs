@@ -1,6 +1,6 @@
 ﻿namespace Azusayumi.Core.Search
 {
-    internal readonly record struct SearchConditions(
+    public readonly record struct SearchConditions(
         int  Depth,
         int  Time,
         int  Inc,

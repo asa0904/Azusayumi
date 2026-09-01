@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Search
 {
-    internal class SearchManager
+    public class SearchManager
     {
         internal volatile bool IsOver;
 
@@ -14,7 +14,7 @@ namespace Azusayumi.Core.Search
 
         private readonly SearchWorker _worker;
 
-        internal SearchManager()
+        public SearchManager()
         {
             _stopwatch = new System.Diagnostics.Stopwatch();
             _worker    = new SearchWorker(this);
@@ -33,12 +33,12 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void CopyPosition(Board board)
+        public void CopyPosition(Board board)
         {
             _worker.CopyPosition(board);
         }
 
-        internal SearchInfo Search<TLogger>(SearchConditions conditions = default)
+        public SearchInfo Search<TLogger>(SearchConditions conditions = default)
             where TLogger : struct, ILogger
         {
             _stopwatch.Restart();
@@ -58,7 +58,7 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Stop()
+        public void Stop()
         {
             IsOver = true;
         }

@@ -7,7 +7,7 @@ namespace Azusayumi.Core.GameLogic
         internal void Add(Move move);
     }
 
-    internal ref struct MoveBuffer(Span<Move> buffer) : IMoveBuffer
+    public ref struct MoveBuffer(Span<Move> buffer) : IMoveBuffer
     {
         private readonly Span<Move> _buffer = buffer;
         private int _count;
@@ -19,13 +19,13 @@ namespace Azusayumi.Core.GameLogic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal readonly Span<Move> AsSpan()
+        public readonly Span<Move> AsSpan()
         {
             return _buffer[.._count];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Clear()
+        public void Clear()
         {
             _count = 0;
         }

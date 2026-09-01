@@ -2,12 +2,12 @@
 
 namespace Azusayumi.Core.GameLogic
 {
-    internal static class MoveType
+    public static class MoveType
     {
-        internal const int Normal    = 0b00 << 12;
-        internal const int Castling  = 0b01 << 12;
-        internal const int EnPassant = 0b10 << 12;
-        internal const int Promotion = 0b11 << 12;
+        public const int Normal    = 0b00 << 12;
+        public const int Castling  = 0b01 << 12;
+        public const int EnPassant = 0b10 << 12;
+        public const int Promotion = 0b11 << 12;
 
         internal const int O_O   = 0b1001 << 12;
         internal const int O_O_O = 0b0001 << 12;
@@ -18,7 +18,7 @@ namespace Azusayumi.Core.GameLogic
         internal const int QueenPromotion  = 0b1111 << 12;
     }
 
-    internal readonly struct Move
+    public readonly struct Move
     {
         /* Encoding of the upper 4 bits.
          * +-----------+-----------+-------------+
@@ -49,25 +49,25 @@ namespace Azusayumi.Core.GameLogic
             _packed = (ushort)(moveType | (originIndex << 6) | targetIndex);
         }
 
-        internal readonly int OriginIndex
+        public readonly int OriginIndex
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => (_packed >> 6) & 0x003F;
         }
 
-        internal readonly int TargetIndex
+        public readonly int TargetIndex
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _packed & 0x003F;
         }
 
-        internal readonly int Type
+        public readonly int Type
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _packed & 0x3000;
         }
 
-        internal readonly int PromotionType
+        public readonly int PromotionType
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => (_packed >> 14) + PieceType.Knight;

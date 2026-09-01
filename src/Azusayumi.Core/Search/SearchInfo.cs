@@ -2,7 +2,7 @@
 
 namespace Azusayumi.Core.Search
 {
-    internal record struct SearchInfo(
+    public record struct SearchInfo(
         int  Depth,
         int  HighestDepth,
         int  Score,

@@ -2,8 +2,8 @@
 
 namespace Azusayumi.Core.Search
 {
-    internal interface ILogger
+    public interface ILogger
     {
-        internal static abstract void Log(SearchInfo info, ReadOnlySpan<Move> pv);
+        static abstract void Log(SearchInfo info, ReadOnlySpan<Move> pv);
     }
 }

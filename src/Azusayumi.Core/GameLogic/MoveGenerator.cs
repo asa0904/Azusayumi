@@ -2,10 +2,10 @@
 
 namespace Azusayumi.Core.GameLogic
 {
-    internal static class MoveGenerator
+    public static class MoveGenerator
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void GenerateLegalMoves(ref MoveBuffer buffer, Board board)
+        public static void GenerateLegalMoves(ref MoveBuffer buffer, Board board)
         {
             if (board.IsWhiteToMove)
             {

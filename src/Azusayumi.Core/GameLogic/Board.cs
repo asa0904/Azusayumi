@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.GameLogic
 {
-    internal class Board
+    public class Board
     {
         private          int         _ply;
         private          int         _sideToMove;
@@ -29,7 +29,7 @@ namespace Azusayumi.Core.GameLogic
             internal byte  CapturedPiece;
         }
 
-        internal Board(int historyCapacity = 1024)
+        public Board(int historyCapacity = 1024)
         {
             _gameStates = new GameState[historyCapacity];
             Set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -41,7 +41,7 @@ namespace Azusayumi.Core.GameLogic
             Set(fen);
         }
 
-        internal bool IsWhiteToMove
+        public bool IsWhiteToMove
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _sideToMove == Color.White;
@@ -77,7 +77,7 @@ namespace Azusayumi.Core.GameLogic
             get => _gameStates[_ply].EnPassantIndex;
         }
 
-        internal void Set(ReadOnlySpan<char> fen)
+        public void Set(ReadOnlySpan<char> fen)
         {
             int spaceIndex = fen.IndexOf(' ');
             ReadOnlySpan<char> section = fen[..spaceIndex];
@@ -302,7 +302,7 @@ namespace Azusayumi.Core.GameLogic
             return fen.ToString();
         }
 
-        internal void Print()
+        public void Print()
         {
             Console.WriteLine();
 
@@ -356,7 +356,7 @@ namespace Azusayumi.Core.GameLogic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int GetPieceType(int squareIndex)
+        public int GetPieceType(int squareIndex)
         {
             return _pieceTypes[squareIndex];
         }
@@ -470,7 +470,7 @@ namespace Azusayumi.Core.GameLogic
             return (E1C1 & attackedBB) == 0;
         }
 
-        internal void MakeMove(Move move)
+        public void MakeMove(Move move)
         {
             if (IsWhiteToMove) { MakeMove<White>(move); } else { MakeMove<Black>(move); }
         }
