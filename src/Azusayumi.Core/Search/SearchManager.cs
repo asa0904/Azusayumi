@@ -82,6 +82,15 @@ namespace Azusayumi.Core.Search
             return ply / 2;
         }
 
+        public int GetQuiescentScore(Board board)
+        {
+            const int Infinity = SearchWorker.Infinity;
+
+            CopyPosition(board);
+            return board.IsWhiteToMove ? +_worker.Quiesce<White>(ply: 0, alpha: -Infinity, beta: Infinity)
+                                       : -_worker.Quiesce<Black>(ply: 0, alpha: -Infinity, beta: Infinity);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldStop(long nodes)
         {
