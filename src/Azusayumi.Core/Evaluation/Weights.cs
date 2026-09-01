@@ -14,5 +14,43 @@
         internal static readonly Score[] BishopMobility = new Score[14];
         internal static readonly Score[] RookMobility   = new Score[15];
         internal static readonly Score[] QueenMobility  = new Score[28];
+
+        internal static int GetLength(Term term)
+        {
+            return term switch
+            {
+                Term.Material       => Material.Length,
+                Term.PawnPst        => PawnPst.Length,
+                Term.KnightPst      => KnightPst.Length,
+                Term.BishopPst      => BishopPst.Length,
+                Term.RookPst        => RookPst.Length,
+                Term.QueenPst       => QueenPst.Length,
+                Term.KingPst        => KingPst.Length,
+                Term.KnightMobility => KnightMobility.Length,
+                Term.BishopMobility => BishopMobility.Length,
+                Term.RookMobility   => RookMobility.Length,
+                Term.QueenMobility  => QueenMobility.Length,
+                _ => 1
+            };
+        }
+
+        internal static (int Mid, int End) GetValue(Term term, int index)
+        {
+            return term switch
+            {
+                Term.Material       => Material[index],
+                Term.PawnPst        => PawnPst[index],
+                Term.KnightPst      => KnightPst[index],
+                Term.BishopPst      => BishopPst[index],
+                Term.RookPst        => RookPst[index],
+                Term.QueenPst       => QueenPst[index],
+                Term.KingPst        => KingPst[index],
+                Term.KnightMobility => KnightMobility[index],
+                Term.BishopMobility => BishopMobility[index],
+                Term.RookMobility   => RookMobility[index],
+                Term.QueenMobility  => QueenMobility[index],
+                _ => Score.Zero
+            };
+        }
     }
 }
