@@ -10,6 +10,8 @@ namespace Azusayumi.Core.Search
             _nodes++;
             _pvTable.Clear(ply);
 
+            if (ply > _highestDepth) { _highestDepth = ply; }
+
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
             bool isInCheck = _board.IsInCheck<TColor>();

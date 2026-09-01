@@ -32,6 +32,12 @@ namespace Azusayumi.Core.Search
             get => _worker.NodesSpent;
         }
 
+        internal int HighestDepth
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _worker.HighestDepth;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyPosition(Board board)
         {

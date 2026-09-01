@@ -7,6 +7,7 @@ namespace Azusayumi.Core.Search
         internal SearchInfo IterativeDeepeningSearch<TLogger>(int maxDepth) where TLogger : struct, ILogger
         {
             _nodes = 0L;
+            _highestDepth = 0;
 
             SearchInfo info = new();
             for (int depth = 1; depth <= maxDepth; depth++)
@@ -18,10 +19,11 @@ namespace Azusayumi.Core.Search
                 info.BestMove   = _pvTable.BestMove;
                 info.PonderMove = _pvTable.PonderMove;
 
-                info.Depth = depth;
-                info.Score = score;
-                info.Nodes = _manager.NodesSpent;
-                info.Time  = _manager.TimeSpent;
+                info.Depth        = depth;
+                info.HighestDepth = _manager.HighestDepth;
+                info.Score        = score;
+                info.Nodes        = _manager.NodesSpent;
+                info.Time         = _manager.TimeSpent;
 
                 TLogger.Log(info, _pvTable.PV);
             }

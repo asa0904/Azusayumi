@@ -11,6 +11,7 @@ namespace Azusayumi.Core.Search
         internal const int DrawValue = 0;
 
         private long _nodes;
+        private int  _highestDepth;
 
         private readonly SearchManager _manager       = manager;
         private readonly Board         _board         = new();
@@ -63,6 +64,12 @@ namespace Azusayumi.Core.Search
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _nodes;
+        }
+
+        internal int HighestDepth
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _highestDepth;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
