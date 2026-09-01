@@ -299,6 +299,7 @@ namespace Azusayumi.Core.GameLogic
             return _pieceTypes[squareIndex];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MakeMove(Move move)
         {
             if (IsWhiteToMove) { MakeMove<White>(move); } else { MakeMove<Black>(move); }
@@ -475,6 +476,7 @@ namespace Azusayumi.Core.GameLogic
             state.Key ^= Zobrist.GetTurnKey();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UnmakeMove(Move move)
         {
             if (IsWhiteToMove) { UnmakeMove<Black>(move); } else { UnmakeMove<White>(move); }
