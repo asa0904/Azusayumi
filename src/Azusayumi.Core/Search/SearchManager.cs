@@ -64,6 +64,19 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsMateScore(int score)
+        {
+            return Math.Abs(score) >= SearchWorker.MateValue - SearchWorker.MaxPly;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetMateDistance(int mateScore)
+        {
+            int ply = mateScore > 0 ? (SearchWorker.MateValue - mateScore + 1) : (-SearchWorker.MateValue - mateScore);
+            return ply / 2;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldStop(long nodes)
         {
             if ((nodes & 1023) != 0) { return false; }
