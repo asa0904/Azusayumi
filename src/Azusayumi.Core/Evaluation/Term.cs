@@ -1,6 +1,6 @@
 ﻿namespace Azusayumi.Core.Evaluation
 {
-    internal enum Term
+    public enum Term
     {
         Material,
         PawnPst,

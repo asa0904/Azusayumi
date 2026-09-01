@@ -1,6 +1,6 @@
 ﻿namespace Azusayumi.Core.Evaluation
 {
-    internal class Weights
+    public class Weights
     {
         internal static readonly Score[] Material  = [(100, 100), (325, 325), (350, 350), (500, 500), (900, 900)];
         internal static readonly Score[] PawnPst   = new Score[64];
@@ -15,7 +15,7 @@
         internal static readonly Score[] RookMobility   = new Score[15];
         internal static readonly Score[] QueenMobility  = new Score[28];
 
-        internal static int GetLength(Term term)
+        public static int GetLength(Term term)
         {
             return term switch
             {
@@ -34,7 +34,7 @@
             };
         }
 
-        internal static (int Mid, int End) GetValue(Term term, int index)
+        public static (int Mid, int End) GetValue(Term term, int index)
         {
             return term switch
             {

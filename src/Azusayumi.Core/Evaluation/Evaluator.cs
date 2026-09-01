@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Evaluation
 {
-    internal static class Evaluator
+    public static class Evaluator
     {
         private struct SearchContext : IEvaluationContext
         {
@@ -37,7 +37,7 @@ namespace Azusayumi.Core.Evaluation
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int Evaluate(Board board)
+        public static int Evaluate(Board board)
         {
             SearchContext context = Evaluator<SearchContext>.Evaluate(board, default);
             Score score = board.Score + context.Score;
