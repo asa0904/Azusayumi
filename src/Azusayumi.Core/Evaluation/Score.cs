@@ -44,6 +44,11 @@ namespace Azusayumi.Core.Evaluation
             return new Score(score.Mid, score.End);
         }
 
+        public static implicit operator (int Mid, int End)(Score score)
+        {
+            return (score.Mid, score.End);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Score operator +(Score left, Score right)
         {
