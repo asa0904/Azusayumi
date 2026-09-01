@@ -209,44 +209,6 @@ namespace Azusayumi.Core.GameLogic
             _blackKingIndex = Bitboard.GetLsb(GetFriends<Black>(PieceType.King));
         }
 
-        internal void CopyFrom(Board board)
-        {
-            _ply            = board._ply;
-            _sideToMove     = board._sideToMove;
-            _whiteKingIndex = board._whiteKingIndex;
-            _blackKingIndex = board._blackKingIndex;
-            _whitePhase     = board._whitePhase;
-            _blackPhase     = board._blackPhase;
-            _occupancy      = board._occupancy;
-            _whitePieces    = board._whitePieces;
-            _blackPieces    = board._blackPieces;
-            
-            _whiteBitboards[PieceType.King]   = board._whiteBitboards[PieceType.King];
-            _whiteBitboards[PieceType.Queen]  = board._whiteBitboards[PieceType.Queen];
-            _whiteBitboards[PieceType.Rook]   = board._whiteBitboards[PieceType.Rook];
-            _whiteBitboards[PieceType.Bishop] = board._whiteBitboards[PieceType.Bishop];
-            _whiteBitboards[PieceType.Knight] = board._whiteBitboards[PieceType.Knight];
-            _whiteBitboards[PieceType.Pawn]   = board._whiteBitboards[PieceType.Pawn];
-
-            _blackBitboards[PieceType.King]   = board._blackBitboards[PieceType.King];
-            _blackBitboards[PieceType.Queen]  = board._blackBitboards[PieceType.Queen];
-            _blackBitboards[PieceType.Rook]   = board._blackBitboards[PieceType.Rook];
-            _blackBitboards[PieceType.Bishop] = board._blackBitboards[PieceType.Bishop];
-            _blackBitboards[PieceType.Knight] = board._blackBitboards[PieceType.Knight];
-            _blackBitboards[PieceType.Pawn]   = board._blackBitboards[PieceType.Pawn];
-
-            for (int i = 0; i < _pieceTypes.Length; i++)
-            {
-                _pieceTypes[i] = board._pieceTypes[i];
-            }
-
-            _gameStates[_ply] = board._gameStates[_ply];
-            for (int ply = _ply - _gameStates[_ply].HalfmoveClock; ply < _ply; ply++)
-            {
-                _gameStates[ply].Key = board._gameStates[ply].Key;
-            }
-        }
-
         public override string ToString()
         {
             System.Text.StringBuilder fen = new();
@@ -332,152 +294,14 @@ namespace Azusayumi.Core.GameLogic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ulong GetFriends<TColor>() where TColor : struct, IColor
-        {
-            return TColor.IsWhite ? _whitePieces : _blackPieces;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ulong GetFriends<TColor>(int pieceType) where TColor : struct, IColor
-        {
-            return TColor.IsWhite ? _whiteBitboards[pieceType] : _blackBitboards[pieceType];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ulong GetEnemies<TColor>() where TColor : struct, IColor
-        {
-            return TColor.IsWhite ? _blackPieces : _whitePieces;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ulong GetEnemies<TColor>(int pieceType) where TColor : struct, IColor
-        {
-            return TColor.IsWhite ? _blackBitboards[pieceType] : _whiteBitboards[pieceType];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetPieceType(int squareIndex)
         {
             return _pieceTypes[squareIndex];
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int GetKingIndex<TColor>() where TColor : struct, IColor
-        {
-            return TColor.IsWhite ? _whiteKingIndex : _blackKingIndex;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int GetPhase()
-        {
-            return Math.Min(GamePhase.Max, _whitePhase + _blackPhase);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int GetPhase<TColor>() where TColor : struct, IColor
-        {
-            return TColor.IsWhite ? _whitePhase : _blackPhase;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool IsInCheck<TColor>() where TColor : struct, IColor
-        {
-            int   kingIndex = GetKingIndex<TColor>();
-            ulong occupancy = _occupancy;
-            return (Attacks.GetBishopAttacks(kingIndex, occupancy) & (GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Bishop))) != 0
-                || (Attacks.GetRookAttacks(kingIndex, occupancy)   & (GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Rook)))   != 0
-                || (Attacks.GetKnightAttacks(kingIndex)            & GetEnemies<TColor>(PieceType.Knight)) != 0
-                || (Attacks.GetPawnAttacks<TColor>(kingIndex)      & GetEnemies<TColor>(PieceType.Pawn))   != 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool IsDraw()
-        {
-            int halfmoveClock = _gameStates[_ply].HalfmoveClock;
-
-            // Fifty-move rule
-            if (halfmoveClock >= 100)
-            {
-                return true;
-            }
-
-            // Insufficient mating material
-            if (GetFriends<White>(PieceType.Pawn) == 0
-             && GetFriends<Black>(PieceType.Pawn) == 0
-             && GetPhase<White>() + GetPhase<Black>() <= 1)
-            {
-                return true;
-            }
-
-            // Threefold repetition
-            ulong key = Key;
-            int repetitionCount = 1;
-            for (int i = 4; i <= halfmoveClock; i += 2)
-            {
-                if (_gameStates[_ply - i].Key == key)
-                {
-                    repetitionCount++;
-                    if (repetitionCount == 3) { return true; }
-                }
-            }
-
-            return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ulong CalculateAttackedBB<TColor>(ulong occupancy) where TColor : struct, IColor
-        {
-            ulong attackedBB = Attacks.GetKingAttacks(TColor.IsWhite ? GetKingIndex<Black>() : GetKingIndex<White>());
-
-            ulong pieces = GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Bishop);
-            while (pieces != 0) { attackedBB |= Attacks.GetBishopAttacks(Bitboard.PopLsb(ref pieces), occupancy); }
-            
-            pieces = GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Rook);
-            while (pieces != 0) { attackedBB |= Attacks.GetRookAttacks(Bitboard.PopLsb(ref pieces), occupancy); }
-
-            pieces = GetEnemies<TColor>(PieceType.Knight);
-            while (pieces != 0) { attackedBB |= Attacks.GetKnightAttacks(Bitboard.PopLsb(ref pieces)); }
-
-            pieces = GetEnemies<TColor>(PieceType.Pawn);
-            attackedBB |= TColor.IsWhite ? (Black.GetPawnRightAttacks(pieces) | Black.GetPawnLeftAttacks(pieces))
-                                         : (White.GetPawnRightAttacks(pieces) | White.GetPawnLeftAttacks(pieces));
-            return attackedBB;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool CanCastleKingside<TColor>(int castlingRights, ulong attackedBB) where TColor : struct, IColor
-        {
-            int castlingRight = TColor.IsWhite ? Castling.WhiteO_O : Castling.BlackO_O;
-            if ((castlingRights & castlingRight) == 0) { return false; }
-
-            ulong F1G1 = TColor.IsWhite ? (Bitboard.F1 | Bitboard.G1) : (Bitboard.F8 | Bitboard.G8);
-            if ((F1G1 & _occupancy) != 0) { return false; }
-
-            ulong E1G1 = TColor.IsWhite ? (Bitboard.E1 | Bitboard.F1 | Bitboard.G1) : (Bitboard.E8 | Bitboard.F8 | Bitboard.G8);
-            return (E1G1 & attackedBB) == 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool CanCastleQueenside<TColor>(int castlingRights, ulong attackedBB) where TColor : struct, IColor
-        {
-            int castlingRight = TColor.IsWhite ? Castling.WhiteO_O_O : Castling.BlackO_O_O;
-            if ((castlingRights & castlingRight) == 0) { return false; }
-
-            ulong D1B1 = TColor.IsWhite ? (Bitboard.D1 | Bitboard.C1 | Bitboard.B1) : (Bitboard.D8 | Bitboard.C8 | Bitboard.B8);
-            if ((D1B1 & _occupancy) != 0) { return false; }
-
-            ulong E1C1 = TColor.IsWhite ? (Bitboard.E1 | Bitboard.D1 | Bitboard.C1) : (Bitboard.E8 | Bitboard.D8 | Bitboard.C8);
-            return (E1C1 & attackedBB) == 0;
-        }
-
         public void MakeMove(Move move)
         {
             if (IsWhiteToMove) { MakeMove<White>(move); } else { MakeMove<Black>(move); }
-        }
-
-        internal void UnmakeMove(Move move)
-        {
-            if (IsWhiteToMove) { UnmakeMove<Black>(move); } else { UnmakeMove<White>(move); }
         }
 
         internal void MakeMove<TColor>(Move move) where TColor : struct, IColor
@@ -651,6 +475,11 @@ namespace Azusayumi.Core.GameLogic
             state.Key ^= Zobrist.GetTurnKey();
         }
 
+        internal void UnmakeMove(Move move)
+        {
+            if (IsWhiteToMove) { UnmakeMove<Black>(move); } else { UnmakeMove<White>(move); }
+        }
+
         internal void UnmakeMove<TColor>(Move move) where TColor : struct, IColor
         {
             _sideToMove ^= 1;
@@ -761,6 +590,177 @@ namespace Azusayumi.Core.GameLogic
             }
 
             --_ply;
+        }
+
+        internal void CopyFrom(Board board)
+        {
+            _ply            = board._ply;
+            _sideToMove     = board._sideToMove;
+            _whiteKingIndex = board._whiteKingIndex;
+            _blackKingIndex = board._blackKingIndex;
+            _whitePhase     = board._whitePhase;
+            _blackPhase     = board._blackPhase;
+            _occupancy      = board._occupancy;
+            _whitePieces    = board._whitePieces;
+            _blackPieces    = board._blackPieces;
+            
+            _whiteBitboards[PieceType.King]   = board._whiteBitboards[PieceType.King];
+            _whiteBitboards[PieceType.Queen]  = board._whiteBitboards[PieceType.Queen];
+            _whiteBitboards[PieceType.Rook]   = board._whiteBitboards[PieceType.Rook];
+            _whiteBitboards[PieceType.Bishop] = board._whiteBitboards[PieceType.Bishop];
+            _whiteBitboards[PieceType.Knight] = board._whiteBitboards[PieceType.Knight];
+            _whiteBitboards[PieceType.Pawn]   = board._whiteBitboards[PieceType.Pawn];
+
+            _blackBitboards[PieceType.King]   = board._blackBitboards[PieceType.King];
+            _blackBitboards[PieceType.Queen]  = board._blackBitboards[PieceType.Queen];
+            _blackBitboards[PieceType.Rook]   = board._blackBitboards[PieceType.Rook];
+            _blackBitboards[PieceType.Bishop] = board._blackBitboards[PieceType.Bishop];
+            _blackBitboards[PieceType.Knight] = board._blackBitboards[PieceType.Knight];
+            _blackBitboards[PieceType.Pawn]   = board._blackBitboards[PieceType.Pawn];
+
+            for (int i = 0; i < _pieceTypes.Length; i++)
+            {
+                _pieceTypes[i] = board._pieceTypes[i];
+            }
+
+            _gameStates[_ply] = board._gameStates[_ply];
+            for (int ply = _ply - _gameStates[_ply].HalfmoveClock; ply < _ply; ply++)
+            {
+                _gameStates[ply].Key = board._gameStates[ply].Key;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ulong GetFriends<TColor>() where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? _whitePieces : _blackPieces;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ulong GetFriends<TColor>(int pieceType) where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? _whiteBitboards[pieceType] : _blackBitboards[pieceType];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ulong GetEnemies<TColor>() where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? _blackPieces : _whitePieces;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ulong GetEnemies<TColor>(int pieceType) where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? _blackBitboards[pieceType] : _whiteBitboards[pieceType];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetKingIndex<TColor>() where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? _whiteKingIndex : _blackKingIndex;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetPhase()
+        {
+            return Math.Min(GamePhase.Max, _whitePhase + _blackPhase);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetPhase<TColor>() where TColor : struct, IColor
+        {
+            return TColor.IsWhite ? _whitePhase : _blackPhase;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsInCheck<TColor>() where TColor : struct, IColor
+        {
+            int   kingIndex = GetKingIndex<TColor>();
+            ulong occupancy = _occupancy;
+            return (Attacks.GetBishopAttacks(kingIndex, occupancy) & (GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Bishop))) != 0
+                || (Attacks.GetRookAttacks(kingIndex, occupancy)   & (GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Rook)))   != 0
+                || (Attacks.GetKnightAttacks(kingIndex)            & GetEnemies<TColor>(PieceType.Knight)) != 0
+                || (Attacks.GetPawnAttacks<TColor>(kingIndex)      & GetEnemies<TColor>(PieceType.Pawn))   != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsDraw()
+        {
+            int halfmoveClock = _gameStates[_ply].HalfmoveClock;
+
+            // Fifty-move rule
+            if (halfmoveClock >= 100)
+            {
+                return true;
+            }
+
+            // Insufficient mating material
+            if (GetFriends<White>(PieceType.Pawn) == 0
+             && GetFriends<Black>(PieceType.Pawn) == 0
+             && GetPhase<White>() + GetPhase<Black>() <= 1)
+            {
+                return true;
+            }
+
+            // Threefold repetition
+            ulong key = Key;
+            int repetitionCount = 1;
+            for (int i = 4; i <= halfmoveClock; i += 2)
+            {
+                if (_gameStates[_ply - i].Key == key)
+                {
+                    repetitionCount++;
+                    if (repetitionCount == 3) { return true; }
+                }
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ulong CalculateAttackedBB<TColor>(ulong occupancy) where TColor : struct, IColor
+        {
+            ulong attackedBB = Attacks.GetKingAttacks(TColor.IsWhite ? GetKingIndex<Black>() : GetKingIndex<White>());
+
+            ulong pieces = GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Bishop);
+            while (pieces != 0) { attackedBB |= Attacks.GetBishopAttacks(Bitboard.PopLsb(ref pieces), occupancy); }
+            
+            pieces = GetEnemies<TColor>(PieceType.Queen) | GetEnemies<TColor>(PieceType.Rook);
+            while (pieces != 0) { attackedBB |= Attacks.GetRookAttacks(Bitboard.PopLsb(ref pieces), occupancy); }
+
+            pieces = GetEnemies<TColor>(PieceType.Knight);
+            while (pieces != 0) { attackedBB |= Attacks.GetKnightAttacks(Bitboard.PopLsb(ref pieces)); }
+
+            pieces = GetEnemies<TColor>(PieceType.Pawn);
+            attackedBB |= TColor.IsWhite ? (Black.GetPawnRightAttacks(pieces) | Black.GetPawnLeftAttacks(pieces))
+                                         : (White.GetPawnRightAttacks(pieces) | White.GetPawnLeftAttacks(pieces));
+            return attackedBB;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool CanCastleKingside<TColor>(int castlingRights, ulong attackedBB) where TColor : struct, IColor
+        {
+            int castlingRight = TColor.IsWhite ? Castling.WhiteO_O : Castling.BlackO_O;
+            if ((castlingRights & castlingRight) == 0) { return false; }
+
+            ulong F1G1 = TColor.IsWhite ? (Bitboard.F1 | Bitboard.G1) : (Bitboard.F8 | Bitboard.G8);
+            if ((F1G1 & _occupancy) != 0) { return false; }
+
+            ulong E1G1 = TColor.IsWhite ? (Bitboard.E1 | Bitboard.F1 | Bitboard.G1) : (Bitboard.E8 | Bitboard.F8 | Bitboard.G8);
+            return (E1G1 & attackedBB) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool CanCastleQueenside<TColor>(int castlingRights, ulong attackedBB) where TColor : struct, IColor
+        {
+            int castlingRight = TColor.IsWhite ? Castling.WhiteO_O_O : Castling.BlackO_O_O;
+            if ((castlingRights & castlingRight) == 0) { return false; }
+
+            ulong D1B1 = TColor.IsWhite ? (Bitboard.D1 | Bitboard.C1 | Bitboard.B1) : (Bitboard.D8 | Bitboard.C8 | Bitboard.B8);
+            if ((D1B1 & _occupancy) != 0) { return false; }
+
+            ulong E1C1 = TColor.IsWhite ? (Bitboard.E1 | Bitboard.D1 | Bitboard.C1) : (Bitboard.E8 | Bitboard.D8 | Bitboard.C8);
+            return (E1C1 & attackedBB) == 0;
         }
     }
 }
