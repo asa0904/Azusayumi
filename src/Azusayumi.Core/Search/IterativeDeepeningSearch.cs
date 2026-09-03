@@ -14,6 +14,7 @@ namespace Azusayumi.Core.Search
             else                      { MoveGenerator<Black>.GenerateLegalMoves(ref buffer, _board, _board.IsInCheck<Black>()); }
             Span<ScoredMove> rootMoves = buffer.AsSpan();
             MoveOrdering.ScoreCaptures(rootMoves, _board);
+            MoveOrdering.SortRootMoves(rootMoves);
 
             SearchInfo info = new();
             for (int depth = 1; depth <= maxDepth; depth++)
@@ -48,7 +49,7 @@ namespace Azusayumi.Core.Search
 
             for (int i = 0; i < rootMoves.Length; i++)
             {
-                Move move = MoveOrdering.Select(i, rootMoves);
+                Move move = rootMoves[i].Move;
 
                 _board.MakeMove(move);
                 int value = isWhiteToMove ? -AlphaBetaSearch<Black>(depth - 1, ply: 1, -beta, -alpha)
