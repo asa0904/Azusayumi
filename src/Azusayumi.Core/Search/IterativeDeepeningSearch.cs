@@ -9,10 +9,16 @@ namespace Azusayumi.Core.Search
             _nodes = 0L;
             _highestDepth = 0;
 
+            MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply: 0));
+            if (_board.IsWhiteToMove) { MoveGenerator<White>.GenerateLegalMoves(ref buffer, _board, _board.IsInCheck<White>()); }
+            else                      { MoveGenerator<Black>.GenerateLegalMoves(ref buffer, _board, _board.IsInCheck<Black>()); }
+            Span<ScoredMove> rootMoves = buffer.AsSpan();
+            MoveOrdering.ScoreCaptures(rootMoves, _board);
+
             SearchInfo info = new();
             for (int depth = 1; depth <= maxDepth; depth++)
             {
-                int score = SearchRoot(depth, alpha: -Infinity, beta: Infinity);
+                int score = SearchRoot(rootMoves, depth, alpha: -Infinity, beta: Infinity);
 
                 if (_manager.IsOver) { break; }
 
@@ -31,7 +37,7 @@ namespace Azusayumi.Core.Search
             return info;
         }
 
-        private int SearchRoot(int depth, int alpha, int beta)
+        private int SearchRoot(Span<ScoredMove> rootMoves, int depth, int alpha, int beta)
         {
             _nodes++;
             _pvTable.Clear(ply: 0);
@@ -40,15 +46,9 @@ namespace Azusayumi.Core.Search
             int  bestValue     = -Infinity;
             bool isInCheck     = isWhiteToMove ? _board.IsInCheck<White>() : _board.IsInCheck<Black>();
 
-            MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply: 0));
-            if (isWhiteToMove) { MoveGenerator<White>.GenerateLegalMoves(ref buffer, _board, isInCheck); }
-            else               { MoveGenerator<Black>.GenerateLegalMoves(ref buffer, _board, isInCheck); }
-            Span<ScoredMove> scoredMoves = buffer.AsSpan();
-            MoveOrdering.ScoreCaptures(scoredMoves, _board);
-
-            for (int i = 0; i < scoredMoves.Length; i++)
+            for (int i = 0; i < rootMoves.Length; i++)
             {
-                Move move = MoveOrdering.Select(i, scoredMoves);
+                Move move = MoveOrdering.Select(i, rootMoves);
 
                 _board.MakeMove(move);
                 int value = isWhiteToMove ? -AlphaBetaSearch<Black>(depth - 1, ply: 1, -beta, -alpha)
@@ -68,7 +68,7 @@ namespace Azusayumi.Core.Search
                 }
             }
 
-            if (scoredMoves.Length == 0) { return isInCheck ? -MateValue : DrawValue; }
+            if (rootMoves.Length == 0) { return isInCheck ? -MateValue : DrawValue; }
 
             return bestValue;
         }
