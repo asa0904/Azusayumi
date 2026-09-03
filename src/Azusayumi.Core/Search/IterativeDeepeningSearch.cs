@@ -4,6 +4,8 @@ namespace Azusayumi.Core.Search
 {
     internal partial class SearchWorker
     {
+        private const long OutputLimit = 10_000_000;
+
         internal SearchInfo IterativeDeepeningSearch<TLogger>(int maxDepth) where TLogger : struct, ILogger
         {
             _nodes = 0L;
@@ -19,7 +21,7 @@ namespace Azusayumi.Core.Search
             SearchInfo info = new();
             for (int depth = 1; depth <= maxDepth; depth++)
             {
-                int score = SearchRoot(rootMoves, depth, alpha: -Infinity, beta: Infinity);
+                int score = SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
 
                 if (_manager.IsOver) { break; }
 
@@ -38,7 +40,7 @@ namespace Azusayumi.Core.Search
             return info;
         }
 
-        private int SearchRoot(Span<ScoredMove> rootMoves, int depth, int alpha, int beta)
+        private int SearchRoot<TLogger>(Span<ScoredMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger
         {
             _nodes++;
             _pvTable.Clear(ply: 0);
@@ -50,6 +52,8 @@ namespace Azusayumi.Core.Search
             for (int i = 0; i < rootMoves.Length; i++)
             {
                 Move move = rootMoves[i].Move;
+
+                if (_nodes > OutputLimit) { TLogger.LogCurrentMove(depth, move, i + 1); }
 
                 _board.MakeMove(move);
                 int value = isWhiteToMove ? -AlphaBetaSearch<Black>(depth - 1, ply: 1, -beta, -alpha)

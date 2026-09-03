@@ -67,5 +67,31 @@ namespace Azusayumi.Cli
 
             Console.WriteLine(log[0..offset]);
         }
+
+        public static void LogCurrentMove(int depth, Move move, int moveCount)
+        {
+            Span<char> log = stackalloc char[64];
+            int offset = 0;
+
+            "info".CopyTo(log);
+            offset += "info".Length;
+
+            " depth ".CopyTo(log[offset..]);
+            offset += " depth ".Length;
+            depth.TryFormat(log[offset..], out int written);
+            offset += written;
+
+            " currmove ".CopyTo(log[offset..]);
+            offset += " currmove ".Length;
+            move.Format(log[offset..], out written);
+            offset += written;
+
+            " currmovenumber ".CopyTo(log[offset..]);
+            offset += " currmovenumber ".Length;
+            moveCount.TryFormat(log[offset..], out written);
+            offset += written;
+
+            Console.WriteLine(log[0..offset]);
+        }
     }
 }
