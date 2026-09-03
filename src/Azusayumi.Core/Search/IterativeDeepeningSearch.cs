@@ -32,7 +32,7 @@ namespace Azusayumi.Core.Search
                 info.Nodes        = _manager.NodesSpent;
                 info.Time         = _manager.TimeSpent;
 
-                TLogger.Log(info, _pvTable.PV);
+                TLogger.LogFullInfo(info, _pvTable.PV);
             }
 
             return info;

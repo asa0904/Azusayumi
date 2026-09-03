@@ -4,6 +4,6 @@ namespace Azusayumi.Core.Search
 {
     public interface ILogger
     {
-        static abstract void Log(SearchInfo info, ReadOnlySpan<Move> pv);
+        static abstract void LogFullInfo(SearchInfo info, ReadOnlySpan<Move> pv);
     }
 }

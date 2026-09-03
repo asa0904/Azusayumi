@@ -5,7 +5,7 @@ namespace Azusayumi.Cli
 {
     internal struct UciLogger : ILogger
     {
-        public static void Log(SearchInfo info, ReadOnlySpan<Move> pv)
+        public static void LogFullInfo(SearchInfo info, ReadOnlySpan<Move> pv)
         {
             Span<char> log = stackalloc char[512];
             int offset = 0;
