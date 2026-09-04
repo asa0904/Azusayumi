@@ -11,10 +11,16 @@ namespace Azusayumi.Core.Search
             _nodes = 0L;
             _highestDepth = 0;
 
+            bool isWhiteToMove = _board.IsWhiteToMove;
+            bool isInCheck     = isWhiteToMove ? _board.IsInCheck<White>() : _board.IsInCheck<Black>();
+
             MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply: 0));
-            if (_board.IsWhiteToMove) { MoveGenerator<White>.GenerateLegalMoves(ref buffer, _board, _board.IsInCheck<White>()); }
-            else                      { MoveGenerator<Black>.GenerateLegalMoves(ref buffer, _board, _board.IsInCheck<Black>()); }
+            if (isWhiteToMove) { MoveGenerator<White>.GenerateLegalMoves(ref buffer, _board, isInCheck); }
+            else               { MoveGenerator<Black>.GenerateLegalMoves(ref buffer, _board, isInCheck); }
             Span<ScoredMove> rootMoves = buffer.AsSpan();
+
+            if (rootMoves.Length == 0) { return default; }
+
             MoveOrdering.ScoreCaptures(rootMoves, _board);
             MoveOrdering.SortRootMoves(rootMoves);
 
@@ -46,7 +52,6 @@ namespace Azusayumi.Core.Search
             bool isWhiteToMove = _board.IsWhiteToMove;
             int  bestIndex     = 0;
             int  bestValue     = -Infinity;
-            bool isInCheck     = isWhiteToMove ? _board.IsInCheck<White>() : _board.IsInCheck<Black>();
 
             for (int i = 0; i < rootMoves.Length; i++)
             {
@@ -85,8 +90,6 @@ namespace Azusayumi.Core.Search
                     }
                 }
             }
-
-            if (rootMoves.Length == 0) { return isInCheck ? -MateValue : DrawValue; }
 
             MoveOrdering.InsertTop(bestIndex, rootMoves);
 
