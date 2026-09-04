@@ -14,10 +14,13 @@ namespace Azusayumi.Core.Search
 
         private readonly SearchWorker _worker;
 
+        private readonly ManualResetEventSlim _stopSignal;
+
         public SearchManager()
         {
-            _stopwatch = new System.Diagnostics.Stopwatch();
-            _worker    = new SearchWorker(this);
+            _stopwatch  = new System.Diagnostics.Stopwatch();
+            _worker     = new SearchWorker(this);
+            _stopSignal = new ManualResetEventSlim(initialState: false);
         }
 
         internal long TimeSpent
@@ -49,6 +52,8 @@ namespace Azusayumi.Core.Search
         {
             _stopwatch.Restart();
 
+            _stopSignal.Reset();
+
             IsOver = false;
 
             _totalTime = (conditions.Time / 20) + (conditions.Inc / 2);
@@ -57,6 +62,8 @@ namespace Azusayumi.Core.Search
 
             int maxDepth = conditions.Depth == 0 ? SearchWorker.MaxPly : conditions.Depth;
             SearchResult result = _worker.IterativeDeepeningSearch<TLogger>(maxDepth);
+
+            if (conditions.IsInfinite) { _stopSignal.Wait(); }
 
             _stopwatch.Stop();
 
@@ -67,6 +74,7 @@ namespace Azusayumi.Core.Search
         public void Stop()
         {
             IsOver = true;
+            _stopSignal.Set();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

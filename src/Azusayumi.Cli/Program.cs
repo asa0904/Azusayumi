@@ -137,6 +137,10 @@
                     tokens = tokens.ConsumeTo(' ', out token);
                     if (int.TryParse(token, out int binc)) { options.Binc = binc; }
                 }
+                else if (token.SequenceEqual("infinite"))
+                {
+                    options.IsInfinite = true;
+                }
             }
 
             _engine.Search(options);
