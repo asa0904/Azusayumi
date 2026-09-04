@@ -70,6 +70,19 @@ namespace Azusayumi.Core.Search
 
                     alpha = value;
                     _pvTable.Write(ply: 0, move);
+
+                    if (_nodes > OutputLimit)
+                    {
+                        SearchInfo info = new()
+                        {
+                            Depth        = depth,
+                            HighestDepth = _manager.HighestDepth,
+                            Score        = bestValue,
+                            Nodes        = _manager.NodesSpent,
+                            Time         = _manager.TimeSpent,
+                        };
+                        TLogger.LogFullInfo(info, _pvTable.PV);
+                    }
                 }
             }
 
