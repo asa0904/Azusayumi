@@ -7,7 +7,7 @@ namespace Azusayumi.Core.Search
     {
         private int AlphaBetaSearch<TColor>(int depth, int ply, int alpha, int beta) where TColor : struct, IColor
         {
-            if (_manager.ShouldStop(_nodes)) { return DrawValue; }
+            if ((_nodes & 1023) == 0 && _manager.ShouldStop()) { return DrawValue; }
 
             if (depth == 0) { return Quiesce<TColor>(ply, alpha, beta); }
 

@@ -92,10 +92,8 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool ShouldStop(long nodes)
+        internal bool ShouldStop()
         {
-            if ((nodes & 1023) != 0) { return false; }
-
             long time = TimeSpent;
             if ((_totalTime > 0 && time >= _totalTime)
              || (_moveTime > 0  && time >= _moveTime)
