@@ -24,27 +24,15 @@ namespace Azusayumi.Core.Search
             MoveOrdering.ScoreCaptures(rootMoves, _board);
             MoveOrdering.SortRootMoves(rootMoves);
 
-            for (int depth = 1; depth <= maxDepth; depth++)
+            for (int depth = 1; !_manager.IsOver && depth <= maxDepth; depth++)
             {
-                int score = SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
-
-                if (_manager.IsOver) { break; }
-
-                SearchInfo info = new()
-                {
-                    Depth        = depth,
-                    HighestDepth = _manager.HighestDepth,
-                    Score        = score,
-                    Nodes        = _manager.NodesSpent,
-                    Time         = _manager.TimeSpent,
-                };
-                TLogger.LogFullInfo(info, _pvTable.PV);
+                SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
             }
 
             return new SearchResult(_pvTable.BestMove, _pvTable.PonderMove);
         }
 
-        private int SearchRoot<TLogger>(Span<ScoredMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger
+        private void SearchRoot<TLogger>(Span<ScoredMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger
         {
             _nodes++;
             _pvTable.Clear(ply: 0);
@@ -64,7 +52,7 @@ namespace Azusayumi.Core.Search
                                           : -AlphaBetaSearch<White>(depth - 1, ply: 1, -beta, -alpha);
                 _board.UnmakeMove(move);
 
-                if (_manager.IsOver) { return DrawValue; }
+                if (_manager.IsOver) { return; }
 
                 if (value > bestValue)
                 {
@@ -93,7 +81,15 @@ namespace Azusayumi.Core.Search
 
             MoveOrdering.InsertTop(bestIndex, rootMoves);
 
-            return bestValue;
+            SearchInfo result = new()
+            {
+                Depth        = depth,
+                HighestDepth = _manager.HighestDepth,
+                Score        = bestValue,
+                Nodes        = _manager.NodesSpent,
+                Time         = _manager.TimeSpent,
+            };
+            TLogger.LogFullInfo(result, _pvTable.PV);
         }
     }
 }
