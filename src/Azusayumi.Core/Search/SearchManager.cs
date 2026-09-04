@@ -44,7 +44,7 @@ namespace Azusayumi.Core.Search
             _worker.CopyPosition(board);
         }
 
-        public SearchInfo Search<TLogger>(SearchConditions conditions = default)
+        public SearchResult Search<TLogger>(SearchConditions conditions = default)
             where TLogger : struct, ILogger
         {
             _stopwatch.Restart();
@@ -56,7 +56,7 @@ namespace Azusayumi.Core.Search
             _maxNodes  = conditions.Nodes;
 
             int maxDepth = conditions.Depth == 0 ? SearchWorker.MaxPly : conditions.Depth;
-            SearchInfo result = _worker.IterativeDeepeningSearch<TLogger>(maxDepth);
+            SearchResult result = _worker.IterativeDeepeningSearch<TLogger>(maxDepth);
 
             _stopwatch.Stop();
 

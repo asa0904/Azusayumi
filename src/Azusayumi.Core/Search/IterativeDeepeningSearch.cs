@@ -6,7 +6,7 @@ namespace Azusayumi.Core.Search
     {
         private const long OutputLimit = 10_000_000;
 
-        internal SearchInfo IterativeDeepeningSearch<TLogger>(int maxDepth) where TLogger : struct, ILogger
+        internal SearchResult IterativeDeepeningSearch<TLogger>(int maxDepth) where TLogger : struct, ILogger
         {
             _nodes = 0L;
             _highestDepth = 0;
@@ -18,26 +18,24 @@ namespace Azusayumi.Core.Search
             MoveOrdering.ScoreCaptures(rootMoves, _board);
             MoveOrdering.SortRootMoves(rootMoves);
 
-            SearchInfo info = new();
             for (int depth = 1; depth <= maxDepth; depth++)
             {
                 int score = SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
 
                 if (_manager.IsOver) { break; }
 
-                info.BestMove   = _pvTable.BestMove;
-                info.PonderMove = _pvTable.PonderMove;
-
-                info.Depth        = depth;
-                info.HighestDepth = _manager.HighestDepth;
-                info.Score        = score;
-                info.Nodes        = _manager.NodesSpent;
-                info.Time         = _manager.TimeSpent;
-
+                SearchInfo info = new()
+                {
+                    Depth        = depth,
+                    HighestDepth = _manager.HighestDepth,
+                    Score        = score,
+                    Nodes        = _manager.NodesSpent,
+                    Time         = _manager.TimeSpent,
+                };
                 TLogger.LogFullInfo(info, _pvTable.PV);
             }
 
-            return info;
+            return new SearchResult(_pvTable.BestMove, _pvTable.PonderMove);
         }
 
         private int SearchRoot<TLogger>(Span<ScoredMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger

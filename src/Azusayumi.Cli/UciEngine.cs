@@ -126,7 +126,7 @@ namespace Azusayumi.Cli
                 if (_exitEngine) { return; }
                 if (!_isSearching) { continue; }
 
-                SearchInfo result = _searchManager.Search<UciLogger>(_conditions);
+                SearchResult result = _searchManager.Search<UciLogger>(_conditions);
 
                 int offset = "bestmove ".Length;
                 result.BestMove.Format(answer[offset..], out int written);
