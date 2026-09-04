@@ -133,9 +133,10 @@ namespace Azusayumi.Cli
                 offset += written;
                 " ponder ".CopyTo(answer[offset..]);
                 offset += " ponder ".Length;
-                result.PonderMove.Format(answer[offset..], out _);
+                result.PonderMove.Format(answer[offset..], out written);
+                offset += written;
 
-                Console.WriteLine(answer);
+                Console.WriteLine(answer[..offset]);
 
                 _searchStartEvent.Reset();
                 _searchFinishEvent.Set();
