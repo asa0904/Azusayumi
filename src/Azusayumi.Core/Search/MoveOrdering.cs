@@ -93,5 +93,16 @@ namespace Azusayumi.Core.Search
                 }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InsertTop(int bestIndex, Span<ScoredMove> rootMoves)
+        {
+            ScoredMove tmp = rootMoves[bestIndex];
+            for (int i = bestIndex; i > 0; i--)
+            {
+                rootMoves[i] = rootMoves[i - 1];
+            }
+            rootMoves[0] = tmp;
+        }
     }
 }

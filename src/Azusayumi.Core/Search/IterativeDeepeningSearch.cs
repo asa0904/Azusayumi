@@ -46,6 +46,7 @@ namespace Azusayumi.Core.Search
             _pvTable.Clear(ply: 0);
 
             bool isWhiteToMove = _board.IsWhiteToMove;
+            int  bestIndex     = 0;
             int  bestValue     = -Infinity;
             bool isInCheck     = isWhiteToMove ? _board.IsInCheck<White>() : _board.IsInCheck<Black>();
 
@@ -64,6 +65,7 @@ namespace Azusayumi.Core.Search
 
                 if (value > bestValue)
                 {
+                    bestIndex = i;
                     bestValue = value;
 
                     if (value >= beta) { break; }
@@ -74,6 +76,8 @@ namespace Azusayumi.Core.Search
             }
 
             if (rootMoves.Length == 0) { return isInCheck ? -MateValue : DrawValue; }
+
+            MoveOrdering.InsertTop(bestIndex, rootMoves);
 
             return bestValue;
         }
