@@ -5,5 +5,6 @@
         int  Time,
         int  Inc,
         int  MoveTime,
-        long Nodes);
+        long Nodes,
+        bool IsInfinite);
 }
