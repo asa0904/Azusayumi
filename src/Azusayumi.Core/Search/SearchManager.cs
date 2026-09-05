@@ -6,6 +6,7 @@ namespace Azusayumi.Core.Search
     public class SearchManager
     {
         internal volatile bool IsOver;
+        internal volatile bool IsPondering;
 
         private int  _totalTime;
         private int  _moveTime;
@@ -65,7 +66,7 @@ namespace Azusayumi.Core.Search
             int maxDepth = conditions.Depth == 0 ? SearchWorker.MaxPly : conditions.Depth;
             SearchResult result = _worker.IterativeDeepeningSearch<TLogger>(maxDepth);
 
-            if (conditions.IsInfinite) { _stopSignal.Wait(); }
+            if (IsPondering || conditions.IsInfinite) { _stopSignal.Wait(); }
 
             _stopwatch.Stop();
 
@@ -75,7 +76,21 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Stop()
         {
-            IsOver = true;
+            IsOver      = true;
+            IsPondering = false;
+            _stopSignal.Set();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void StartPondering()
+        {
+            IsPondering = _settings.PonderEnabled;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void StopPondering()
+        {
+            IsPondering = false;
             _stopSignal.Set();
         }
 
@@ -104,6 +119,8 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldStop()
         {
+            if (IsPondering) { return false; }
+
             long time = TimeSpent;
             if ((_totalTime > 0 && time >= _totalTime)
              || (_moveTime > 0  && time >= _moveTime)

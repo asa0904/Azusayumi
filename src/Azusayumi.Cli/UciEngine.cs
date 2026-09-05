@@ -108,6 +108,16 @@ namespace Azusayumi.Cli
             _searchStartEvent.Reset();
         }
 
+        internal void StartPondering()
+        {
+            _searchManager.StartPondering();
+        }
+
+        internal void StopPondering()
+        {
+            _searchManager.StopPondering();
+        }
+
         internal void Quit()
         {
             _exitEngine = true;
