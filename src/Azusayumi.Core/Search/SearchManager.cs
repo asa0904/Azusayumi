@@ -8,20 +8,21 @@ namespace Azusayumi.Core.Search
         internal volatile bool IsOver;
         internal volatile bool IsPondering;
 
+        internal readonly SearchSettings Settings;
+
         private int  _totalTime;
         private int  _moveTime;
         private long _maxNodes;
         private readonly System.Diagnostics.Stopwatch _stopwatch;
 
-        private readonly SearchSettings _settings;
-        private readonly SearchWorker   _worker;
-
+        private readonly SearchWorker         _worker;
         private readonly ManualResetEventSlim _stopSignal;
 
         public SearchManager(SearchSettings settings)
         {
+            Settings = settings;
+
             _stopwatch  = new System.Diagnostics.Stopwatch();
-            _settings   = settings;
             _worker     = new SearchWorker(this);
             _stopSignal = new ManualResetEventSlim(initialState: false);
         }
@@ -84,7 +85,7 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void StartPondering()
         {
-            IsPondering = _settings.PonderEnabled;
+            IsPondering = Settings.PonderEnabled;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
