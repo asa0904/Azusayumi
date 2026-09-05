@@ -9,15 +9,22 @@ namespace Azusayumi.Cli
         private bool _isSearching;
         private bool _exitEngine;
         private SearchConditions _conditions;
-        private readonly Board _board = new();
-        private readonly SearchManager _searchManager = new();
-        private readonly ManualResetEventSlim _searchStartEvent  = new(initialState: false);
-        private readonly ManualResetEventSlim _searchFinishEvent = new(initialState: true);
+        private readonly Board                _board;
+        private readonly SearchSettings       _settings;
+        private readonly SearchManager        _searchManager;
+        private readonly ManualResetEventSlim _searchStartEvent;
+        private readonly ManualResetEventSlim _searchFinishEvent;
 
         private record struct GoCommand(int Depth, int MoveTime, int Nodes, int TotalTime, int Inc);
 
         internal UciEngine()
         {
+            _board             = new Board();
+            _settings          = new SearchSettings();
+            _searchManager     = new SearchManager(_settings);
+            _searchStartEvent  = new ManualResetEventSlim(initialState: false);
+            _searchFinishEvent = new ManualResetEventSlim(initialState: true);
+
             Thread searchThread = new(SearchLoop)
             {
                 IsBackground = true,

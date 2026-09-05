@@ -10,7 +10,7 @@ namespace Azusayumi.DatasetBuilder
         private readonly bool          _append        = append;
         private readonly int           _maxScore      = maxScore;
         private readonly Board         _board         = new();
-        private readonly SearchManager _searchManager = new();
+        private readonly SearchManager _searchManager = new(new SearchSettings());
 
         internal void Build(string source, string output)
         {

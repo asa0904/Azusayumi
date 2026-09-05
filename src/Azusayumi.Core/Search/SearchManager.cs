@@ -12,13 +12,15 @@ namespace Azusayumi.Core.Search
         private long _maxNodes;
         private readonly System.Diagnostics.Stopwatch _stopwatch;
 
-        private readonly SearchWorker _worker;
+        private readonly SearchSettings _settings;
+        private readonly SearchWorker   _worker;
 
         private readonly ManualResetEventSlim _stopSignal;
 
-        public SearchManager()
+        public SearchManager(SearchSettings settings)
         {
             _stopwatch  = new System.Diagnostics.Stopwatch();
+            _settings   = settings;
             _worker     = new SearchWorker(this);
             _stopSignal = new ManualResetEventSlim(initialState: false);
         }
