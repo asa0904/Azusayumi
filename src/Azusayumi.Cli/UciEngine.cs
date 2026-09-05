@@ -41,6 +41,7 @@ namespace Azusayumi.Cli
 
             Console.WriteLine($"id name Azusayumi {version}");
             Console.WriteLine("id author Asato Kamamoto");
+            Console.WriteLine("option name Ponder type check default false");
         }
 
         internal void Clear()
@@ -48,6 +49,18 @@ namespace Azusayumi.Cli
             Stop();
             _board.Set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
             _searchManager.CopyPosition(_board);
+        }
+
+        internal void SetOption(ReadOnlySpan<char> name, ReadOnlySpan<char> value)
+        {
+            if (name.SequenceEqual("Ponder") && bool.TryParse(value, out bool ponderEnabled))
+            {
+                _settings.PonderEnabled = ponderEnabled;
+            }
+            else
+            {
+                Console.WriteLine("Unknown option.");
+            }
         }
 
         internal void SetPosition(ReadOnlySpan<char> fen, ReadOnlySpan<char> uciMoves)

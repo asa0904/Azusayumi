@@ -45,10 +45,18 @@
             {
                 _engine.Stop();
             }
+            else if (token.SequenceEqual("ponderhit"))
+            {
+                _engine.StopPondering();
+            }
             else if (token.SequenceEqual("uci"))
             {
                 UciEngine.PrintUciInfo();
                 Console.WriteLine("uciok");
+            }
+            else if (token.SequenceEqual("setoption"))
+            {
+                SetOption(tokens);
             }
             else if (token.SequenceEqual("isready"))
             {
@@ -71,6 +79,19 @@
             {
                 Console.WriteLine("Unknown command.");
             }
+        }
+
+        private static void SetOption(ReadOnlySpan<char> tokens)
+        {
+            tokens = tokens.ConsumeTo(' ', out ReadOnlySpan<char> token);
+
+            if (!token.SequenceEqual("name")) { return; }
+
+            int valueIndex = tokens.IndexOf("value", StringComparison.OrdinalIgnoreCase);
+            ReadOnlySpan<char> name  = valueIndex == -1 ? tokens  : tokens[..valueIndex].TrimEnd();
+            ReadOnlySpan<char> value = valueIndex == -1 ? default : tokens[(valueIndex + "value".Length + 1)..].TrimStart();
+
+            _engine.SetOption(name, value);
         }
 
         private static void SetPosition(ReadOnlySpan<char> tokens)
@@ -140,6 +161,10 @@
                 else if (token.SequenceEqual("infinite"))
                 {
                     options.IsInfinite = true;
+                }
+                else if (token.SequenceEqual("ponder"))
+                {
+                    _engine.StartPondering();
                 }
             }
 
