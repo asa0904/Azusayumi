@@ -100,12 +100,12 @@ namespace Azusayumi.Cli
         {
             _conditions = new SearchConditions()
             {
-                Depth       = options.Depth,
-                Time        = _board.IsWhiteToMove ? options.Wtime : options.Btime,
-                Inc         = _board.IsWhiteToMove ? options.Winc  : options.Binc,
-                MoveTime    = options.MoveTime,
-                Nodes       = options.Nodes,
-                IsInfinite  = options.IsInfinite,
+                Depth      = options.Depth,
+                Time       = _board.IsWhiteToMove ? options.Wtime : options.Btime,
+                Inc        = _board.IsWhiteToMove ? options.Winc  : options.Binc,
+                MoveTime   = options.MoveTime,
+                Nodes      = options.Nodes,
+                IsInfinite = options.IsInfinite,
             };
 
             _isSearching = true;
