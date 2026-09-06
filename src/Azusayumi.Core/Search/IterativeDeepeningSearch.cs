@@ -14,10 +14,10 @@ namespace Azusayumi.Core.Search
             bool isWhiteToMove = _board.IsWhiteToMove;
             bool isInCheck     = isWhiteToMove ? _board.IsInCheck<White>() : _board.IsInCheck<Black>();
 
-            MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply: 0));
+            RootMoveBuffer buffer = new(_rootMoves);
             if (isWhiteToMove) { MoveGenerator<White>.GenerateLegalMoves(ref buffer, _board, isInCheck); }
             else               { MoveGenerator<Black>.GenerateLegalMoves(ref buffer, _board, isInCheck); }
-            Span<ScoredMove> rootMoves = buffer.AsSpan();
+            Span<RootMove> rootMoves = buffer.AsSpan();
 
             if (rootMoves.Length == 0) { return default; }
 
@@ -26,10 +26,11 @@ namespace Azusayumi.Core.Search
                 SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
             }
 
-            return new SearchResult(_pvTable.BestMove, _pvTable.PonderMove);
+            RootMove bestMove = rootMoves[0];
+            return new SearchResult(bestMove.Move, bestMove.PonderMove);
         }
 
-        private void SearchRoot<TLogger>(Span<ScoredMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger
+        private void SearchRoot<TLogger>(Span<RootMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger
         {
             _nodes++;
             _pvTable.Clear(ply: 0);
@@ -60,6 +61,7 @@ namespace Azusayumi.Core.Search
 
                     alpha = value;
                     _pvTable.Write(ply: 0, move);
+                    rootMoves[i].SavePV(_pvTable.PV);
 
                     if (_nodes > OutputLimit)
                     {
