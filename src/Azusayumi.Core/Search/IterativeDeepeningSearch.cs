@@ -21,9 +21,6 @@ namespace Azusayumi.Core.Search
 
             if (rootMoves.Length == 0) { return default; }
 
-            MoveOrdering.ScoreCaptures(rootMoves, _board);
-            MoveOrdering.SortRootMoves(rootMoves);
-
             for (int depth = 1; !_manager.IsOver && depth <= maxDepth; depth++)
             {
                 SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
