@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Search
 {
-    internal partial class SearchWorker(SearchManager manager)
+    internal partial class SearchWorker
     {
         internal const int MaxPly    = 64;
         internal const int Infinity  = short.MaxValue;
@@ -13,10 +13,25 @@ namespace Azusayumi.Core.Search
         private long _nodes;
         private int  _highestDepth;
 
-        private readonly SearchManager _manager       = manager;
-        private readonly Board         _board         = new();
-        private readonly MoveArrayPool _moveArrayPool = new();
-        private readonly PVTable       _pvTable       = new();
+        private readonly SearchManager _manager;
+        private readonly Board         _board;
+        private readonly MoveArrayPool _moveArrayPool;
+        private readonly PVTable       _pvTable;
+        private readonly RootMove[]    _rootMoves;
+
+        internal SearchWorker(SearchManager manager)
+        {
+            _manager       = manager;
+            _board         = new Board();
+            _moveArrayPool = new MoveArrayPool();
+            _pvTable       = new PVTable();
+            _rootMoves     = new RootMove[256];
+            
+            for (int i = 0; i < _rootMoves.Length; i++)
+            {
+                _rootMoves[i] = new RootMove();
+            }
+        }
 
         private ref struct MoveBuffer : IMoveBuffer
         {
