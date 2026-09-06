@@ -30,4 +30,28 @@ namespace Azusayumi.Core.Search
             pv.CopyTo(_pv);
         }
     }
+
+    internal ref struct RootMoveBuffer : IMoveBuffer
+    {
+        private readonly Span<RootMove> _buffer;
+        private int _count;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal RootMoveBuffer(Span<RootMove> buffer)
+        {
+            _buffer = buffer;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(Move move)
+        {
+            _buffer[_count++].Move = move;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal readonly Span<RootMove> AsSpan()
+        {
+            return _buffer[.._count];
+        }
+    }
 }
