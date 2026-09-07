@@ -36,57 +36,71 @@ namespace Azusayumi.Core.Search
             _pvTable.Clear(ply: 0);
 
             bool isWhiteToMove = _board.IsWhiteToMove;
-            int  bestValue     = -Infinity;
 
-            for (int i = 0; i < rootMoves.Length; i++)
+            int maxPVCount = Math.Min(_manager.Settings.PVCount, rootMoves.Length);
+            for (int pvIndex = 0; pvIndex < maxPVCount; pvIndex++)
             {
-                Move move = rootMoves[i].Move;
+                int bestValue = alpha = -Infinity;
 
-                if (_nodes > OutputLimit) { TLogger.LogCurrentMove(depth, move, i + 1); }
-
-                _board.MakeMove(move);
-                int value = isWhiteToMove ? -AlphaBetaSearch<Black>(depth - 1, ply: 1, -beta, -alpha)
-                                          : -AlphaBetaSearch<White>(depth - 1, ply: 1, -beta, -alpha);
-                _board.UnmakeMove(move);
-
-                if (_manager.IsOver) { return; }
-
-                if (value > bestValue)
+                for (int i = pvIndex; i < rootMoves.Length; i++)
                 {
-                    bestValue = value;
+                    Move move = rootMoves[i].Move;
 
-                    if (value >= beta) { break; }
+                    if (_nodes > OutputLimit) { TLogger.LogCurrentMove(depth, move, i + 1); }
 
-                    alpha = value;
-                    _pvTable.Write(ply: 0, move);
-                    rootMoves[i].SavePV(_pvTable.PV);
+                    _board.MakeMove(move);
+                    int value = isWhiteToMove ? -AlphaBetaSearch<Black>(depth - 1, ply: 1, -beta, -alpha)
+                                              : -AlphaBetaSearch<White>(depth - 1, ply: 1, -beta, -alpha);
+                    _board.UnmakeMove(move);
 
-                    MoveOrdering.InsertBefore(from: i, to: 0, rootMoves);
+                    if (_manager.IsOver) { return; }
 
-                    if (_nodes > OutputLimit)
+                    if (value > bestValue)
                     {
-                        SearchInfo info = new()
+                        bestValue = value;
+
+                        if (value >= beta) { break; }
+
+                        alpha = value;
+                        _pvTable.Write(ply: 0, move);
+                        rootMoves[i].SavePV(_pvTable.PV);
+
+                        MoveOrdering.InsertBefore(from: i, to: pvIndex, rootMoves);
+
+                        if (_nodes > OutputLimit)
                         {
-                            Depth        = depth,
-                            HighestDepth = _manager.HighestDepth,
-                            Score        = bestValue,
-                            Nodes        = _manager.NodesSpent,
-                            Time         = _manager.TimeSpent,
-                        };
-                        TLogger.LogFullInfo(info, _pvTable.PV);
+                            rootMoves[pvIndex].Info = new()
+                            {
+                                Depth        = depth,
+                                HighestDepth = _manager.HighestDepth,
+                                Score        = bestValue,
+                                Nodes        = _manager.NodesSpent,
+                                Time         = _manager.TimeSpent,
+                            };
+                            for (int j = 0; j < maxPVCount; j++)
+                            {
+                                rootMoves[j].Info.PVIndex = j + 1;
+                                TLogger.LogFullInfo(rootMoves[j].Info, rootMoves[j].PV);
+                            }
+                        }
                     }
                 }
+
+                rootMoves[pvIndex].Info = new()
+                {
+                    Depth        = depth,
+                    HighestDepth = _manager.HighestDepth,
+                    PVIndex      = pvIndex + 1,
+                    Score        = bestValue,
+                    Nodes        = _manager.NodesSpent,
+                    Time         = _manager.TimeSpent,
+                };
             }
 
-            SearchInfo result = new()
+            for (int pvIndex = 0; pvIndex < maxPVCount; pvIndex++)
             {
-                Depth        = depth,
-                HighestDepth = _manager.HighestDepth,
-                Score        = bestValue,
-                Nodes        = _manager.NodesSpent,
-                Time         = _manager.TimeSpent,
-            };
-            TLogger.LogFullInfo(result, _pvTable.PV);
+                TLogger.LogFullInfo(rootMoves[pvIndex].Info, rootMoves[pvIndex].PV);
+            }
         }
     }
 }
