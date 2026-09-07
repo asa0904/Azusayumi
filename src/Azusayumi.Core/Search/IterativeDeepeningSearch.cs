@@ -36,7 +36,6 @@ namespace Azusayumi.Core.Search
             _pvTable.Clear(ply: 0);
 
             bool isWhiteToMove = _board.IsWhiteToMove;
-            int  bestIndex     = 0;
             int  bestValue     = -Infinity;
 
             for (int i = 0; i < rootMoves.Length; i++)
@@ -54,7 +53,6 @@ namespace Azusayumi.Core.Search
 
                 if (value > bestValue)
                 {
-                    bestIndex = i;
                     bestValue = value;
 
                     if (value >= beta) { break; }
@@ -62,6 +60,8 @@ namespace Azusayumi.Core.Search
                     alpha = value;
                     _pvTable.Write(ply: 0, move);
                     rootMoves[i].SavePV(_pvTable.PV);
+
+                    MoveOrdering.InsertTop(i, rootMoves);
 
                     if (_nodes > OutputLimit)
                     {
@@ -77,8 +77,6 @@ namespace Azusayumi.Core.Search
                     }
                 }
             }
-
-            MoveOrdering.InsertTop(bestIndex, rootMoves);
 
             SearchInfo result = new()
             {
