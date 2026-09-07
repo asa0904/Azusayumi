@@ -42,6 +42,7 @@ namespace Azusayumi.Cli
             Console.WriteLine($"id name Azusayumi {version}");
             Console.WriteLine("id author Asato Kamamoto");
             Console.WriteLine("option name Ponder type check default false");
+            Console.WriteLine("option name MultiPV type spin default 1 min 1 max 256");
         }
 
         internal void Clear()
@@ -56,6 +57,10 @@ namespace Azusayumi.Cli
             if (name.SequenceEqual("Ponder") && bool.TryParse(value, out bool ponderEnabled))
             {
                 _settings.PonderEnabled = ponderEnabled;
+            }
+            else if (name.SequenceEqual("MultiPV") && int.TryParse(value, out int multiPV))
+            {
+                _settings.PVCount = multiPV;
             }
             else
             {

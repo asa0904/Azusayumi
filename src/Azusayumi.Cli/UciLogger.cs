@@ -23,6 +23,11 @@ namespace Azusayumi.Cli
             info.HighestDepth.TryFormat(log[offset..], out written);
             offset += written;
 
+            " multipv ".CopyTo(log[offset..]);
+            offset += " multipv ".Length;
+            info.PVIndex.TryFormat(log[offset..], out written);
+            offset += written;
+
             " score ".CopyTo(log[offset..]);
             offset += " score ".Length;
             if (SearchManager.IsMateScore(info.Score))
