@@ -8,18 +8,6 @@ namespace Azusayumi.Core.Search
         private readonly int[]  _lengths = new int[SearchWorker.MaxPly + 1];
         private readonly Move[] _moves   = new Move[(SearchWorker.MaxPly * SearchWorker.MaxPly) + 1];
 
-        internal Move BestMove
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _moves[0];
-        }
-
-        internal Move PonderMove
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _moves[1];
-        }
-
         internal ReadOnlySpan<Move> PV
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

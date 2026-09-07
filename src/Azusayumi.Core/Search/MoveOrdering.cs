@@ -74,27 +74,6 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void SortRootMoves(Span<ScoredMove> rootMoves)
-        {
-            for (int i = 1; i < rootMoves.Length; i++)
-            {
-                if (rootMoves[i].Score > rootMoves[i - 1].Score)
-                {
-                    ScoredMove tmp = rootMoves[i];
-
-                    int j = i;
-                    do
-                    {
-                        rootMoves[j] = rootMoves[j - 1];
-                        j--;
-                    } while (j > 0 && tmp.Score > rootMoves[j - 1].Score);
-
-                    rootMoves[j] = tmp;
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void InsertBefore(int from, int to, Span<RootMove> rootMoves)
         {
             RootMove tmp = rootMoves[from];

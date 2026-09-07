@@ -55,12 +55,6 @@ namespace Azusayumi.Core.Search
             {
                 return _buffer[.._count];
             }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal void Clear()
-            {
-                _count = 0;
-            }
         }
 
         private class MoveArrayPool

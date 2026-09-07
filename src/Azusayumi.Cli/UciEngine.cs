@@ -15,8 +15,6 @@ namespace Azusayumi.Cli
         private readonly ManualResetEventSlim _searchStartEvent;
         private readonly ManualResetEventSlim _searchFinishEvent;
 
-        private record struct GoCommand(int Depth, int MoveTime, int Nodes, int TotalTime, int Inc);
-
         internal UciEngine()
         {
             _board             = new Board();
