@@ -61,7 +61,7 @@ namespace Azusayumi.Core.Search
                     _pvTable.Write(ply: 0, move);
                     rootMoves[i].SavePV(_pvTable.PV);
 
-                    MoveOrdering.InsertTop(i, rootMoves);
+                    MoveOrdering.InsertBefore(from: i, to: 0, rootMoves);
 
                     if (_nodes > OutputLimit)
                     {

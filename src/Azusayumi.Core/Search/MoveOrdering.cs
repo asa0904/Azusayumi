@@ -95,14 +95,14 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InsertTop(int bestIndex, Span<RootMove> rootMoves)
+        internal static void InsertBefore(int from, int to, Span<RootMove> rootMoves)
         {
-            RootMove tmp = rootMoves[bestIndex];
-            for (int i = bestIndex; i > 0; i--)
+            RootMove tmp = rootMoves[from];
+            for (int i = from; i > to; i--)
             {
                 rootMoves[i] = rootMoves[i - 1];
             }
-            rootMoves[0] = tmp;
+            rootMoves[to] = tmp;
         }
     }
 }
