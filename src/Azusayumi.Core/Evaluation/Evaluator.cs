@@ -42,7 +42,7 @@ namespace Azusayumi.Core.Evaluation
             SearchContext context = Evaluator<SearchContext>.Evaluate(board, default);
             Score score = board.Score + context.Score;
 
-            return score.Interpolate(board.GetPhase());
+            return score.Interpolate(board.Phase);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

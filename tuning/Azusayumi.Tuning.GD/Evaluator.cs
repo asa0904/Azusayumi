@@ -11,7 +11,7 @@ namespace Azusayumi.Tuning.GD
             context = Evaluator<TuningContext>.Evaluate(board, context);
 
             Score  score  = context.Score;
-            double phase  = (double)board.GetPhase() / GamePhase.Max;
+            double phase  = (double)board.Phase / GamePhase.Max;
             double result = (score.Mid * phase) + (score.End * (1.0 - phase));
 
             return result;

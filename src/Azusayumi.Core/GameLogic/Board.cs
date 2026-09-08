@@ -47,6 +47,12 @@ namespace Azusayumi.Core.GameLogic
             get => _sideToMove == Color.White;
         }
 
+        public int Phase
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Math.Min(GamePhase.Max, _whitePhase + _blackPhase);
+        }
+
         internal ulong Occupancy
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -660,12 +666,6 @@ namespace Azusayumi.Core.GameLogic
         internal int GetKingIndex<TColor>() where TColor : struct, IColor
         {
             return TColor.IsWhite ? _whiteKingIndex : _blackKingIndex;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int GetPhase()
-        {
-            return Math.Min(GamePhase.Max, _whitePhase + _blackPhase);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -24,7 +24,7 @@ namespace Azusayumi.Tuning.GD
         {
             double prediction = Predict(entry.Fen);
             double error      = prediction - entry.Result;
-            double phase      = (double)_board.GetPhase() / GamePhase.Max;
+            double phase      = (double)_board.Phase / GamePhase.Max;
             Score  gradient   = new Score(phase, 1.0 - phase) * 2.0 * error * (_k / 400.0 * Log10) * prediction * (1.0 - prediction);
             
             _context.AccumulateGradients(gradient, gradients);
