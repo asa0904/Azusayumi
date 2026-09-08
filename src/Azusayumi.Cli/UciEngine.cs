@@ -1,4 +1,5 @@
-﻿using Azusayumi.Core.GameLogic;
+﻿using Azusayumi.Core.Evaluation;
+using Azusayumi.Core.GameLogic;
 using Azusayumi.Core.Search;
 using System.Reflection;
 
@@ -14,6 +15,7 @@ namespace Azusayumi.Cli
         private readonly SearchManager        _searchManager;
         private readonly ManualResetEventSlim _searchStartEvent;
         private readonly ManualResetEventSlim _searchFinishEvent;
+        private readonly TraceContext         _traceContext;
 
         internal UciEngine()
         {
@@ -22,6 +24,7 @@ namespace Azusayumi.Cli
             _searchManager     = new SearchManager(_settings);
             _searchStartEvent  = new ManualResetEventSlim(initialState: false);
             _searchFinishEvent = new ManualResetEventSlim(initialState: true);
+            _traceContext      = new TraceContext();
 
             Thread searchThread = new(SearchLoop)
             {
@@ -146,6 +149,18 @@ namespace Azusayumi.Cli
         internal void PrintPosition()
         {
             _board.Print();
+        }
+
+        internal void PrintEvaluation()
+        {
+            _traceContext.Clear();
+            _ = Evaluator<TraceContext>.EvaluatePst(_board, _traceContext);
+            _ = Evaluator<TraceContext>.Evaluate(_board, _traceContext);
+
+            double phase = 100.0 * _board.Phase / GamePhase.Max;
+            int evaluation = Evaluator.Evaluate(_board);
+            Console.WriteLine($"Total evaluation: {evaluation / 100.0:0.00} (MG: {phase:0}%, EG: {100.0 - phase:0}%)");
+            _traceContext.Print();
         }
 
         private void SearchLoop()

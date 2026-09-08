@@ -75,6 +75,10 @@
             {
                 _engine.PrintPosition();
             }
+            else if (token.SequenceEqual("eval"))
+            {
+                _engine.PrintEvaluation();
+            }
             else
             {
                 Console.WriteLine("Unknown command.");
