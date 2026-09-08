@@ -2,9 +2,9 @@
 
 namespace Azusayumi.Core.GameLogic
 {
-    internal interface IColor
+    public interface IColor
     {
-        internal static abstract bool IsWhite { get; }
+        static abstract bool IsWhite { get; }
 
         internal static abstract int Up { get; }
 
@@ -23,7 +23,7 @@ namespace Azusayumi.Core.GameLogic
         internal static abstract ulong GetPawnLeftAttacks(ulong pawns);
     }
 
-    internal readonly struct White : IColor
+    public readonly struct White : IColor
     {
         public static bool IsWhite
         {
@@ -80,7 +80,7 @@ namespace Azusayumi.Core.GameLogic
         }
     }
 
-    internal readonly struct Black : IColor
+    public readonly struct Black : IColor
     {
         public static bool IsWhite
         {

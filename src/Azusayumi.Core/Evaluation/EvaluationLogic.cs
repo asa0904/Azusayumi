@@ -3,10 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Evaluation
 {
-    internal static class Evaluator<TContext> where TContext : struct, IEvaluationContext
+    public static class Evaluator<TContext> where TContext : struct, IEvaluationContext
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static TContext Evaluate(Board board, TContext context)
+        public static TContext Evaluate(Board board, TContext context)
         {
             ulong whitePieces = board.GetFriends<White>();
             ulong blackPieces = board.GetFriends<Black>();
@@ -79,7 +79,7 @@ namespace Azusayumi.Core.Evaluation
             return context;
         }
 
-        internal static TContext EvaluatePst(Board board, TContext context)
+        public static TContext EvaluatePst(Board board, TContext context)
         {
             ulong whitePieces = board.GetFriends<White>();
             while (whitePieces != 0)

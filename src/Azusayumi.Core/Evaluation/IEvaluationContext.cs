@@ -1,7 +1,7 @@
 ﻿namespace Azusayumi.Core.Evaluation
 {
-    internal interface IEvaluationContext
+    public interface IEvaluationContext
     {
-        internal void Add<TColor>(Term term, int index = 0, int count = 1) where TColor : struct, GameLogic.IColor;
+        void Add<TColor>(Term term, int index = 0, int count = 1) where TColor : struct, GameLogic.IColor;
     }
 }

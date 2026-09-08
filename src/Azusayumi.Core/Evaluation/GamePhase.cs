@@ -2,9 +2,9 @@
 
 namespace Azusayumi.Core.Evaluation
 {
-    internal static class GamePhase
+    public static class GamePhase
     {
-        internal const int Max = 24;
+        public const int Max = 24;
 
         private static readonly int[] _weights = [0, 1, 1, 2, 4, 0];
 
