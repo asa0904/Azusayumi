@@ -7,32 +7,19 @@ namespace Azusayumi.Cli
 {
     internal class UciEngine
     {
-        private bool _isSearching;
-        private bool _exitEngine;
-        private SearchConditions _conditions;
-        private readonly Board                _board;
-        private readonly SearchSettings       _settings;
-        private readonly SearchManager        _searchManager;
-        private readonly ManualResetEventSlim _searchStartEvent;
-        private readonly ManualResetEventSlim _searchFinishEvent;
-        private readonly TraceContext         _traceContext;
+        private readonly Board          _board;
+        private readonly SearchSettings _settings;
+        private readonly SearchManager  _searchManager;
+        private readonly TraceContext   _traceContext;
 
         internal UciEngine()
         {
-            _board             = new Board();
-            _settings          = new SearchSettings();
-            _searchManager     = new SearchManager(_settings);
-            _searchStartEvent  = new ManualResetEventSlim(initialState: false);
-            _searchFinishEvent = new ManualResetEventSlim(initialState: true);
-            _traceContext      = new TraceContext();
+            _board         = new Board();
+            _settings      = new SearchSettings();
+            _searchManager = new SearchManager(_settings);
+            _traceContext  = new TraceContext();
 
-            Thread searchThread = new(SearchLoop)
-            {
-                IsBackground = true,
-                Name = "SearchThread",
-                Priority = ThreadPriority.Normal,
-            };
-            searchThread.Start();
+            _searchManager.Start<UciLogger>();
         }
 
         internal static void PrintUciInfo()
@@ -104,7 +91,7 @@ namespace Azusayumi.Cli
 
         internal void Search(UciGoOptions options)
         {
-            _conditions = new SearchConditions()
+            _searchManager.StartSearch(new SearchConditions()
             {
                 Depth      = options.Depth,
                 Time       = _board.IsWhiteToMove ? options.Wtime : options.Btime,
@@ -112,19 +99,12 @@ namespace Azusayumi.Cli
                 MoveTime   = options.MoveTime,
                 Nodes      = options.Nodes,
                 IsInfinite = options.IsInfinite,
-            };
-
-            _isSearching = true;
-            _searchStartEvent.Set();
-            _searchFinishEvent.Reset();
+            });
         }
 
         internal void Stop()
         {
-            _isSearching = false;
             _searchManager.Stop();
-            _searchFinishEvent.Wait();
-            _searchStartEvent.Reset();
         }
 
         internal void StartPondering()
@@ -139,11 +119,7 @@ namespace Azusayumi.Cli
 
         internal void Quit()
         {
-            _exitEngine = true;
-            _isSearching = false;
-            _searchManager.Stop();
-            _searchFinishEvent.Wait();
-            _searchStartEvent.Set();
+            _searchManager.Quit();
         }
 
         internal void PrintPosition()
@@ -161,23 +137,6 @@ namespace Azusayumi.Cli
             int evaluation = Evaluator.Evaluate(_board);
             Console.WriteLine($"Total evaluation: {evaluation / 100.0:0.00} (MG: {phase:0}%, EG: {100.0 - phase:0}%)");
             _traceContext.Print();
-        }
-
-        private void SearchLoop()
-        {
-            while (!_exitEngine)
-            {
-                _searchStartEvent.Wait();
-
-                if (_exitEngine) { return; }
-                if (!_isSearching) { continue; }
-
-                SearchResult result = _searchManager.Search<UciLogger>(_conditions);
-                UciLogger.LogBestMove(result);
-
-                _searchStartEvent.Reset();
-                _searchFinishEvent.Set();
-            }
         }
     }
 }

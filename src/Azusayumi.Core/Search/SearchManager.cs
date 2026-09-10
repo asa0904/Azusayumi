@@ -52,17 +52,20 @@ namespace Azusayumi.Core.Search
             get => _worker.HighestDepth;
         }
 
+        public void Start<TLogger>() where TLogger : struct, ILogger
+        {
+            _worker.Start<TLogger>();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyPosition(Board board)
         {
             _worker.CopyPosition(board);
         }
 
-        public SearchResult Search<TLogger>(SearchConditions conditions = default)
-            where TLogger : struct, ILogger
+        public void StartSearch(SearchConditions conditions)
         {
             _stopwatch.Restart();
-
             _stopSignal.Reset();
 
             _isOver = false;
@@ -73,13 +76,7 @@ namespace Azusayumi.Core.Search
             _moveTime  = conditions.MoveTime;
             _maxNodes  = conditions.Nodes;
 
-            SearchResult result = _worker.IterativeDeepeningSearch<TLogger>();
-
-            if (_isInfinite) { _stopSignal.Wait(); }
-
-            _stopwatch.Stop();
-
-            return result;
+            _worker.StartSearch();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,6 +98,13 @@ namespace Azusayumi.Core.Search
         {
             _isInfinite = false;
             _stopSignal.Set();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Quit()
+        {
+            Stop();
+            _worker.Dispose();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
