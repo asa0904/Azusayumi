@@ -38,9 +38,15 @@ namespace Azusayumi.Core.Search
             for (int i = 0; i < scoredMoves.Length; i++)
             {
                 Move move = scoredMoves[i].Move;
-                if (move.Type == MoveType.EnPassant)
+                
+                int moveType = move.Type;
+                if (moveType == MoveType.EnPassant)
                 {
                     scoredMoves[i].Score = Px + P;
+                }
+                else if (moveType == MoveType.Castling)
+                {
+                    scoredMoves[i].Score = Quiet;
                 }
                 else
                 {
