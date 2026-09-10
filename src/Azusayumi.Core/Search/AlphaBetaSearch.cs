@@ -32,7 +32,7 @@ namespace Azusayumi.Core.Search
             MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply));
             MoveGenerator<TColor>.GenerateLegalMoves(ref buffer, _board, isInCheck);
             Span<ScoredMove> scoredMoves = buffer.AsSpan();
-            MoveOrdering.ScoreCaptures(scoredMoves, _board);
+            MoveOrdering.Score(scoredMoves, _killerTable[ply, 0], _killerTable[ply, 1], _board);
 
             for (int i = 0; i < scoredMoves.Length; i++)
             {
@@ -56,6 +56,12 @@ namespace Azusayumi.Core.Search
                             _statistics.CutNodes++;
                             if (i == 0) { _statistics.FirstCutNodes++; }
 #endif
+                            
+                            if (_board.IsQuiet(move))
+                            {
+                                _killerTable.Write(move, ply);
+                            }
+
                             break;
                         }
 

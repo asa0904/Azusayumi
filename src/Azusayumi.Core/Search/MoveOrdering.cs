@@ -9,7 +9,10 @@ namespace Azusayumi.Core.Search
     {
         private const int Quiet = 0;
 
-        private const int Kx = Quiet + 1;
+        private const int SecondKiller = Quiet + 1;
+        private const int FirstKiller  = Quiet + 2;
+
+        private const int Kx = FirstKiller + 1;
         private const int Qx = Kx + 1;
         private const int Rx = Kx + 2;
         private const int Bx = Kx + 3;
@@ -53,6 +56,38 @@ namespace Azusayumi.Core.Search
                     int victim   = board.GetPieceType(move.TargetIndex);
                     int attacker = board.GetPieceType(move.OriginIndex);
                     scoredMoves[i].Score = _mvvLvaScores[(attacker << 3) | victim];
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void Score(Span<ScoredMove> scoredMoves, Move firstKiller, Move secondKiller, Board board)
+        {
+            for (int i = 0; i < scoredMoves.Length; i++)
+            {
+                Move move = scoredMoves[i].Move;
+
+                int victim = board.GetPieceType(move.TargetIndex);
+                if (victim != PieceType.None && move.Type != MoveType.Castling)
+                {
+                    int attacker = board.GetPieceType(move.OriginIndex);
+                    scoredMoves[i].Score = _mvvLvaScores[(attacker << 3) | victim];
+                }
+                else if (move.Type == MoveType.EnPassant)
+                {
+                    scoredMoves[i].Score = Px + P;
+                }
+                else if (move == firstKiller)
+                {
+                    scoredMoves[i].Score = FirstKiller;
+                }
+                else if (move == secondKiller)
+                {
+                    scoredMoves[i].Score = SecondKiller;
+                }
+                else
+                {
+                    scoredMoves[i].Score = Quiet;
                 }
             }
         }

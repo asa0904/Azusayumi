@@ -23,6 +23,8 @@ namespace Azusayumi.Core.Search
         private Thread? _searchThread;
         private readonly ManualResetEventSlim _startSignal;
 
+        private readonly KillerTable _killerTable = new();
+
 #if COLLECT_STATS
         private readonly SearchStatistics _statistics = new();
 #endif
@@ -118,7 +120,7 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ClearHash()
         {
-            
+            _killerTable.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
