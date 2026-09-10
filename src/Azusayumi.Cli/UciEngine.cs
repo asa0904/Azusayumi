@@ -29,6 +29,7 @@ namespace Azusayumi.Cli
 
             Console.WriteLine($"id name Azusayumi {version}");
             Console.WriteLine("id author Asato Kamamoto");
+            Console.WriteLine("option name Clear Hash type button");
             Console.WriteLine("option name Ponder type check default false");
             Console.WriteLine("option name MultiPV type spin default 1 min 1 max 256");
         }
@@ -43,7 +44,11 @@ namespace Azusayumi.Cli
 
         internal void SetOption(ReadOnlySpan<char> name, ReadOnlySpan<char> value)
         {
-            if (name.SequenceEqual("Ponder"))
+            if (name.SequenceEqual("Clear Hash"))
+            {
+                _searchManager.ClearHash();
+            }
+            else if (name.SequenceEqual("Ponder"))
             {
                 if (bool.TryParse(value, out bool ponderEnabled))
                 {
