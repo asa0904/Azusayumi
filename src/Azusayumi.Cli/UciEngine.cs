@@ -138,5 +138,31 @@ namespace Azusayumi.Cli
             Console.WriteLine($"Total evaluation: {evaluation / 100.0:0.00} (MG: {phase:0}%, EG: {100.0 - phase:0}%)");
             _traceContext.Print();
         }
+
+        internal void RunBenchmark(IEnumerable<string> fens, int depth)
+        {
+            int count = fens.Count();
+
+            long totalNodes = 0L;
+            long totalTime  = 0L;
+
+            int i = 1;
+            foreach (string fen in fens)
+            {
+                Console.WriteLine($"Position: {i++}/{count} ({fen})");
+                
+                _board.Set(fen);
+                _searchManager.CopyPosition(_board);
+
+                (long nodes, long time) = _searchManager.RunBenchmark(depth);
+                totalNodes += nodes;
+                totalTime  += time;
+            }
+
+            Console.WriteLine("-----------------------------------");
+            Console.WriteLine($"Nodes : {totalNodes:N0}");
+            Console.WriteLine($"Time  : {totalTime:N0} ms");
+            Console.WriteLine($"NPS   : {totalNodes / totalTime:N0} kn/s\n");
+        }
     }
 }

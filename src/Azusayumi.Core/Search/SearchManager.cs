@@ -120,6 +120,18 @@ namespace Azusayumi.Core.Search
             return ply / 2;
         }
 
+        public (long Nodes, long Time) RunBenchmark(int depth)
+        {
+            _isOver   = false;
+            _maxDepth = depth;
+
+            _stopwatch.Restart();
+            _ = _worker.IterativeDeepeningSearch<NullLogger>();
+            _stopwatch.Stop();
+
+            return (NodesSpent, TimeSpent);
+        }
+
         public int GetQuiescentScore(Board board)
         {
             const int Infinity = SearchWorker.Infinity;

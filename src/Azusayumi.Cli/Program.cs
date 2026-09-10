@@ -79,6 +79,10 @@
             {
                 _engine.PrintEvaluation();
             }
+            else if (token.SequenceEqual("bench"))
+            {
+                RunBenchmark(tokens);
+            }
             else
             {
                 Console.WriteLine("Unknown command.");
@@ -173,6 +177,35 @@
             }
 
             _engine.Search(options);
+        }
+
+        private static void RunBenchmark(ReadOnlySpan<char> tokens)
+        {
+            string path  = string.Empty;
+            int    depth = 1;
+
+            while (!tokens.IsEmpty)
+            {
+                tokens = tokens.ConsumeTo(' ', out ReadOnlySpan<char> token);
+
+                if (token.SequenceEqual("path"))
+                {
+                    tokens = tokens.ConsumeTo(' ', out token);
+                    path   = token.ToString();
+                }
+                else if (token.SequenceEqual("depth"))
+                {
+                    tokens = tokens.ConsumeTo(' ', out token);
+                    if (int.TryParse(token, out int d)) { depth = d; }
+                }
+            }
+
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException("Benchmark file was not found.", path);
+            }
+
+            _engine.RunBenchmark(File.ReadLines(path), depth);
         }
     }
 }
