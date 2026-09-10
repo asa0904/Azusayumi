@@ -5,4 +5,13 @@
 		<AssemblyVersion>$(EngineVersion).0</AssemblyVersion>
 		<FileVersion>$(EngineVersion).0</FileVersion>
 	</PropertyGroup>
+	<PropertyGroup>
+		<Configurations>Debug;Release;ReleaseWithStats</Configurations>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'ReleaseWithStats'">
+		<DefineConstants>$(DefineConstants);COLLECT_STATS</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'ReleaseWithStats'">
+		<Optimize>true</Optimize>
+	</PropertyGroup>
 </Project>

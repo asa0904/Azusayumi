@@ -1,4 +1,9 @@
 <Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="ReleaseWithStats" />
+  </Configurations>
   <Folder Name="/src/">
     <Project Path="src/Azusayumi.Cli/Azusayumi.Cli.csproj" Id="edc26db0-4f8e-4ac4-bb9f-48644dfad813" />
     <Project Path="src/Azusayumi.Core/Azusayumi.Core.csproj" />
