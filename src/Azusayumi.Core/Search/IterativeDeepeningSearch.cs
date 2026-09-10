@@ -6,7 +6,7 @@ namespace Azusayumi.Core.Search
     {
         private const long OutputLimit = 10_000_000;
 
-        internal SearchResult IterativeDeepeningSearch<TLogger>(int maxDepth) where TLogger : struct, ILogger
+        internal SearchResult IterativeDeepeningSearch<TLogger>() where TLogger : struct, ILogger
         {
             _nodes = 0L;
             _highestDepth = 0;
@@ -21,7 +21,7 @@ namespace Azusayumi.Core.Search
 
             if (rootMoves.Length == 0) { return default; }
 
-            for (int depth = 1; !_manager.IsOver && depth <= maxDepth; depth++)
+            for (int depth = 1; !_manager.ShouldExitIteration(depth); depth++)
             {
                 SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
             }

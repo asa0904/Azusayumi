@@ -10,6 +10,7 @@ namespace Azusayumi.Core.Search
 
         internal readonly SearchSettings Settings;
 
+        private int  _maxDepth;
         private int  _totalTime;
         private int  _moveTime;
         private long _maxNodes;
@@ -61,12 +62,12 @@ namespace Azusayumi.Core.Search
             IsOver = false;
             IsInfinite |= conditions.IsInfinite;
 
+            _maxDepth  = conditions.Depth == 0 ? SearchWorker.MaxPly : conditions.Depth;
             _totalTime = (conditions.Time / 20) + (conditions.Inc / 2);
             _moveTime  = conditions.MoveTime;
             _maxNodes  = conditions.Nodes;
 
-            int maxDepth = conditions.Depth == 0 ? SearchWorker.MaxPly : conditions.Depth;
-            SearchResult result = _worker.IterativeDeepeningSearch<TLogger>(maxDepth);
+            SearchResult result = _worker.IterativeDeepeningSearch<TLogger>();
 
             if (IsInfinite) { _stopSignal.Wait(); }
 
@@ -116,6 +117,12 @@ namespace Azusayumi.Core.Search
             CopyPosition(board);
             return board.IsWhiteToMove ? +_worker.Quiesce<White>(ply: 0, alpha: -Infinity, beta: Infinity)
                                        : -_worker.Quiesce<Black>(ply: 0, alpha: -Infinity, beta: Infinity);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool ShouldExitIteration(int depth)
+        {
+            return IsOver || depth > _maxDepth;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
