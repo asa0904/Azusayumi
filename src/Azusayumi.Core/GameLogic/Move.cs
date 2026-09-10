@@ -79,6 +79,12 @@ namespace Azusayumi.Core.GameLogic
             get => _packed >> 14;
         }
 
+        internal readonly int Key
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _packed & 0x0FFF;
+        }
+
         public override readonly string ToString()
         {
             string move = $"{Square.ToCoordinate(OriginIndex)}{Square.ToCoordinate(TargetIndex)}";
