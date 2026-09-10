@@ -720,6 +720,14 @@ namespace Azusayumi.Core.GameLogic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsQuiet(Move move)
+        {
+            int moveType = move.Type;
+            return (GetPieceType(move.TargetIndex) == PieceType.None && moveType != MoveType.EnPassant)
+                || moveType == MoveType.Castling;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ulong CalculateAttackedBB<TColor>(ulong occupancy) where TColor : struct, IColor
         {
             ulong attackedBB = Attacks.GetKingAttacks(TColor.IsWhite ? GetKingIndex<Black>() : GetKingIndex<White>());
