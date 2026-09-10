@@ -132,7 +132,13 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldExitIteration(int depth)
         {
-            return _isOver || depth > _maxDepth;
+            if (_isOver || depth > _maxDepth)
+            {
+                _stopwatch.Stop();
+                return true;
+            }
+
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
