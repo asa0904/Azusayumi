@@ -147,5 +147,11 @@ namespace Azusayumi.Core.Search
 
             return false;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void WaitForStopSignal()
+        {
+            if (_isInfinite) { _stopSignal.Wait(); }
+        }
     }
 }

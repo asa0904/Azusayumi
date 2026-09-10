@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Search
 {
-    internal partial class SearchWorker
+    internal partial class SearchWorker : IDisposable
     {
         internal const int MaxPly    = 64;
         internal const int Infinity  = short.MaxValue;
@@ -19,6 +19,10 @@ namespace Azusayumi.Core.Search
         private readonly PVTable       _pvTable;
         private readonly RootMove[]    _rootMoves;
 
+        private bool _exitEngine;
+        private Thread? _searchThread;
+        private readonly ManualResetEventSlim _startSignal;
+
         internal SearchWorker(SearchManager manager)
         {
             _manager       = manager;
@@ -26,6 +30,7 @@ namespace Azusayumi.Core.Search
             _moveArrayPool = new MoveArrayPool();
             _pvTable       = new PVTable();
             _rootMoves     = new RootMove[256];
+            _startSignal   = new ManualResetEventSlim(initialState: false);
             
             for (int i = 0; i < _rootMoves.Length; i++)
             {
@@ -81,10 +86,67 @@ namespace Azusayumi.Core.Search
             get => _highestDepth;
         }
 
+        internal void Start<TLogger>() where TLogger : struct, ILogger
+        {
+            if (_searchThread is not null) { return; }
+
+            _searchThread = new Thread(SearchLoop<TLogger>);
+            _searchThread.Start();
+        }
+
+        public void Dispose()
+        {
+            if (!_exitEngine)
+            {
+                _exitEngine = true;
+                StartSearch();
+
+                if (_searchThread is not null
+                 && _searchThread.IsAlive)
+                {
+                    _searchThread.Join(1000);
+                }
+
+                _startSignal.Dispose();
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void CopyPosition(Board board)
         {
             _board.CopyFrom(board);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void StartSearch()
+        {
+            _startSignal.Set();
+        }
+
+        private void SearchLoop<TLogger>() where TLogger : struct, ILogger
+        {
+            while (!_exitEngine)
+            {
+                _startSignal.Wait();
+
+                if (_exitEngine) { break; }
+
+                SearchResult result = default;
+                try
+                {
+                    result = IterativeDeepeningSearch<TLogger>();
+                    _manager.WaitForStopSignal();
+                }
+                catch (Exception ex)
+                {
+                    TLogger.LogException(ex);
+                }
+                finally
+                {
+                    TLogger.LogBestMove(result);
+                    _startSignal.Reset();
+                }
+            }
         }
     }
 }
