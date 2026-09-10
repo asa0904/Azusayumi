@@ -38,6 +38,7 @@ namespace Azusayumi.Cli
             Stop();
             _board.Set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
             _searchManager.CopyPosition(_board);
+            _searchManager.ClearHash();
         }
 
         internal void SetOption(ReadOnlySpan<char> name, ReadOnlySpan<char> value)

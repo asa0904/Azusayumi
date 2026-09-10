@@ -116,6 +116,12 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ClearHash()
+        {
+            
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void CopyPosition(Board board)
         {
             _board.CopyFrom(board);

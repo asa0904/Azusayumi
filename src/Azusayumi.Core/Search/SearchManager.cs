@@ -58,6 +58,12 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ClearHash()
+        {
+            _worker.ClearHash();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyPosition(Board board)
         {
             _worker.CopyPosition(board);
