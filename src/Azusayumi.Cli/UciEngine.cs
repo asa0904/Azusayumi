@@ -165,9 +165,6 @@ namespace Azusayumi.Cli
 
         private void SearchLoop()
         {
-            Span<char> answer = new char[32];
-            "bestmove ".CopyTo(answer);
-
             while (!_exitEngine)
             {
                 _searchStartEvent.Wait();
@@ -176,16 +173,7 @@ namespace Azusayumi.Cli
                 if (!_isSearching) { continue; }
 
                 SearchResult result = _searchManager.Search<UciLogger>(_conditions);
-
-                int offset = "bestmove ".Length;
-                result.BestMove.Format(answer[offset..], out int written);
-                offset += written;
-                " ponder ".CopyTo(answer[offset..]);
-                offset += " ponder ".Length;
-                result.PonderMove.Format(answer[offset..], out written);
-                offset += written;
-
-                Console.WriteLine(answer[..offset]);
+                UciLogger.LogBestMove(result);
 
                 _searchStartEvent.Reset();
                 _searchFinishEvent.Set();

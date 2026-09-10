@@ -73,6 +73,27 @@ namespace Azusayumi.Cli
             Console.WriteLine(log[0..offset]);
         }
 
+        public static void LogBestMove(SearchResult result)
+        {
+            Span<char> log = stackalloc char[32];
+            int offset = 0;
+
+            "bestmove ".CopyTo(log);
+            offset += "bestmove ".Length;
+            result.BestMove.Format(log[offset..], out int written);
+            offset += written;
+
+            if (result.PonderMove != Move.Null)
+            {
+                " ponder ".CopyTo(log[offset..]);
+                offset += " ponder ".Length;
+                result.PonderMove.Format(log[offset..], out written);
+                offset += written;
+            }
+
+            Console.WriteLine(log[..offset]);
+        }
+
         public static void LogCurrentMove(int depth, Move move, int moveCount)
         {
             Span<char> log = stackalloc char[64];
