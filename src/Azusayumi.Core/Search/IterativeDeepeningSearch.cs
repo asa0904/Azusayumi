@@ -32,7 +32,6 @@ namespace Azusayumi.Core.Search
 
         private void SearchRoot<TLogger>(Span<RootMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger
         {
-            _nodes++;
             _pvTable.Clear(ply: 0);
 
             bool isWhiteToMove = _board.IsWhiteToMove;
