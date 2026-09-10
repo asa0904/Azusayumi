@@ -9,5 +9,7 @@ namespace Azusayumi.Core.Search
         static abstract void LogBestMove(SearchResult result);
 
         static abstract void LogCurrentMove(int depth, Move move, int moveCount);
+
+        static abstract void LogException(Exception ex);
     }
 }

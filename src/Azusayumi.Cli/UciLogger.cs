@@ -119,5 +119,10 @@ namespace Azusayumi.Cli
 
             Console.WriteLine(log[0..offset]);
         }
+
+        public static void LogException(Exception ex)
+        {
+            Console.WriteLine($"info string An error occurred while searching: {ex.Message}");
+        }
     }
 }
