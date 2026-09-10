@@ -9,10 +9,20 @@ namespace Azusayumi.Core.Search
         {
             if ((_nodes & 1023) == 0 && _manager.ShouldStop()) { return DrawValue; }
 
-            if (depth == 0) { return Quiesce<TColor>(ply, alpha, beta); }
+            if (depth == 0)
+            {
+#if COLLECT_STATS
+                _statistics.HorizonNodes++;
+#endif
+                return Quiesce<TColor>(ply, alpha, beta);
+            }
 
             _nodes++;
             _pvTable.Clear(ply);
+
+#if COLLECT_STATS
+            _statistics.InteriorNodes++;
+#endif
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
@@ -40,7 +50,14 @@ namespace Azusayumi.Core.Search
 
                     if (value > alpha)
                     {
-                        if (value >= beta) { break; }
+                        if (value >= beta)
+                        {
+#if COLLECT_STATS
+                            _statistics.CutNodes++;
+                            if (i == 0) { _statistics.FirstCutNodes++; }
+#endif
+                            break;
+                        }
 
                         alpha = value;
                         _pvTable.Write(ply, move);

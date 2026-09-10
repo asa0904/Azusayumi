@@ -21,10 +21,22 @@ namespace Azusayumi.Core.Search
 
             if (rootMoves.Length == 0) { return default; }
 
+#if COLLECT_STATS
+            _statistics.Reset();
+#endif
+
             for (int depth = 1; !_manager.ShouldExitIteration(depth); depth++)
             {
                 SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
+
+#if COLLECT_STATS
+                _statistics.RecordNodes(depth);
+#endif
             }
+
+#if COLLECT_STATS
+            _statistics.Print();
+#endif
 
             RootMove bestMove = rootMoves[0];
             return new SearchResult(bestMove.Move, bestMove.PonderMove);

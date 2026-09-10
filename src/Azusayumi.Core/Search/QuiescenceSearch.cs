@@ -10,6 +10,10 @@ namespace Azusayumi.Core.Search
             _nodes++;
             _pvTable.Clear(ply);
 
+#if COLLECT_STATS
+            _statistics.QuiescentNodes++;
+#endif
+
             if (ply > _highestDepth) { _highestDepth = ply; }
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
@@ -42,7 +46,14 @@ namespace Azusayumi.Core.Search
 
                     if (value > alpha)
                     {
-                        if (value >= beta) { break; }
+                        if (value >= beta)
+                        {
+#if COLLECT_STATS
+                            _statistics.QCutNodes++;
+                            if (i == 0) { _statistics.FirstQCutNodes++; }
+#endif
+                            break;
+                        }
 
                         alpha = value;
                         _pvTable.Write(ply, move);

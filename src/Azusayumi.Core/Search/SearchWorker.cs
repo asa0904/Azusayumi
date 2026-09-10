@@ -23,6 +23,10 @@ namespace Azusayumi.Core.Search
         private Thread? _searchThread;
         private readonly ManualResetEventSlim _startSignal;
 
+#if COLLECT_STATS
+        private readonly SearchStatistics _statistics = new();
+#endif
+
         internal SearchWorker(SearchManager manager)
         {
             _manager       = manager;
