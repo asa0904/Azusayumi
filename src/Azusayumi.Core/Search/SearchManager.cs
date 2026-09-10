@@ -5,10 +5,10 @@ namespace Azusayumi.Core.Search
 {
     public class SearchManager
     {
-        internal volatile bool IsOver;
-        internal volatile bool IsInfinite;
-
         internal readonly SearchSettings Settings;
+
+        private volatile bool _isOver;
+        private volatile bool _isInfinite;
 
         private int  _maxDepth;
         private int  _totalTime;
@@ -26,6 +26,12 @@ namespace Azusayumi.Core.Search
             _stopwatch  = new System.Diagnostics.Stopwatch();
             _worker     = new SearchWorker(this);
             _stopSignal = new ManualResetEventSlim(initialState: false);
+        }
+
+        internal bool IsOver
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _isOver;
         }
 
         internal long TimeSpent
@@ -59,8 +65,8 @@ namespace Azusayumi.Core.Search
 
             _stopSignal.Reset();
 
-            IsOver = false;
-            IsInfinite |= conditions.IsInfinite;
+            _isOver = false;
+            _isInfinite |= conditions.IsInfinite;
 
             _maxDepth  = conditions.Depth == 0 ? SearchWorker.MaxPly : conditions.Depth;
             _totalTime = (conditions.Time / 20) + (conditions.Inc / 2);
@@ -69,7 +75,7 @@ namespace Azusayumi.Core.Search
 
             SearchResult result = _worker.IterativeDeepeningSearch<TLogger>();
 
-            if (IsInfinite) { _stopSignal.Wait(); }
+            if (_isInfinite) { _stopSignal.Wait(); }
 
             _stopwatch.Stop();
 
@@ -79,21 +85,21 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Stop()
         {
-            IsOver     = true;
-            IsInfinite = false;
+            _isOver     = true;
+            _isInfinite = false;
             _stopSignal.Set();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void StartPondering()
         {
-            IsInfinite = Settings.PonderEnabled;
+            _isInfinite = Settings.PonderEnabled;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void StopPondering()
         {
-            IsInfinite = false;
+            _isInfinite = false;
             _stopSignal.Set();
         }
 
@@ -122,20 +128,20 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldExitIteration(int depth)
         {
-            return IsOver || depth > _maxDepth;
+            return _isOver || depth > _maxDepth;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldStop()
         {
-            if (IsInfinite) { return false; }
+            if (_isInfinite) { return false; }
 
             long time = TimeSpent;
             if ((_totalTime > 0 && time >= _totalTime)
              || (_moveTime > 0  && time >= _moveTime)
              || (_maxNodes > 0  && NodesSpent >= _maxNodes))
             {
-                IsOver = true;
+                _isOver = true;
                 return true;
             }
 
