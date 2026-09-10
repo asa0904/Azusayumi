@@ -6,7 +6,7 @@ namespace Azusayumi.Core.Search
     public class SearchManager
     {
         internal volatile bool IsOver;
-        internal volatile bool IsPondering;
+        internal volatile bool IsInfinite;
 
         internal readonly SearchSettings Settings;
 
@@ -59,6 +59,7 @@ namespace Azusayumi.Core.Search
             _stopSignal.Reset();
 
             IsOver = false;
+            IsInfinite |= conditions.IsInfinite;
 
             _totalTime = (conditions.Time / 20) + (conditions.Inc / 2);
             _moveTime  = conditions.MoveTime;
@@ -67,7 +68,7 @@ namespace Azusayumi.Core.Search
             int maxDepth = conditions.Depth == 0 ? SearchWorker.MaxPly : conditions.Depth;
             SearchResult result = _worker.IterativeDeepeningSearch<TLogger>(maxDepth);
 
-            if (IsPondering || conditions.IsInfinite) { _stopSignal.Wait(); }
+            if (IsInfinite) { _stopSignal.Wait(); }
 
             _stopwatch.Stop();
 
@@ -77,21 +78,21 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Stop()
         {
-            IsOver      = true;
-            IsPondering = false;
+            IsOver     = true;
+            IsInfinite = false;
             _stopSignal.Set();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void StartPondering()
         {
-            IsPondering = Settings.PonderEnabled;
+            IsInfinite = Settings.PonderEnabled;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void StopPondering()
         {
-            IsPondering = false;
+            IsInfinite = false;
             _stopSignal.Set();
         }
 
@@ -120,7 +121,7 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldStop()
         {
-            if (IsPondering) { return false; }
+            if (IsInfinite) { return false; }
 
             long time = TimeSpent;
             if ((_totalTime > 0 && time >= _totalTime)
