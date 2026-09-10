@@ -85,7 +85,7 @@
             }
             else
             {
-                Console.WriteLine("Unknown command.");
+                Console.WriteLine($"Unknown command: {token}");
             }
         }
 

@@ -42,17 +42,31 @@ namespace Azusayumi.Cli
 
         internal void SetOption(ReadOnlySpan<char> name, ReadOnlySpan<char> value)
         {
-            if (name.SequenceEqual("Ponder") && bool.TryParse(value, out bool ponderEnabled))
+            if (name.SequenceEqual("Ponder"))
             {
-                _settings.PonderEnabled = ponderEnabled;
+                if (bool.TryParse(value, out bool ponderEnabled))
+                {
+                    _settings.PonderEnabled = ponderEnabled;
+                }
+                else
+                {
+                    Console.WriteLine("Ponder value must be either 'true' or 'false'.");
+                }
             }
-            else if (name.SequenceEqual("MultiPV") && int.TryParse(value, out int multiPV))
+            else if (name.SequenceEqual("MultiPV"))
             {
-                _settings.PVCount = multiPV;
+                if (int.TryParse(value, out int multiPV) && (multiPV is >= 1 and <= 256))
+                {
+                    _settings.PVCount = multiPV;
+                }
+                else
+                {
+                    Console.WriteLine("MultiPV value must be between 1 and 256.");
+                }
             }
             else
             {
-                Console.WriteLine("Unknown option.");
+                Console.WriteLine($"Unknown option: {name}");
             }
         }
 
