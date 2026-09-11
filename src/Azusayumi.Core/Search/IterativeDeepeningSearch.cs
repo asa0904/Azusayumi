@@ -29,7 +29,14 @@ namespace Azusayumi.Core.Search
 
             for (int depth = 1; !_manager.ShouldExitIteration(depth); depth++)
             {
-                SearchRoot<TLogger>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
+                if (isWhiteToMove)
+                {
+                    SearchRoot<TLogger, White>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
+                }
+                else
+                {
+                    SearchRoot<TLogger, Black>(rootMoves, depth, alpha: -Infinity, beta: Infinity);
+                }
 
 #if COLLECT_STATS
                 _statistics.RecordNodes(depth);
@@ -44,11 +51,11 @@ namespace Azusayumi.Core.Search
             return new SearchResult(bestMove.Move, bestMove.PonderMove);
         }
 
-        private void SearchRoot<TLogger>(Span<RootMove> rootMoves, int depth, int alpha, int beta) where TLogger : struct, ILogger
+        private void SearchRoot<TLogger, TColor>(Span<RootMove> rootMoves, int depth, int alpha, int beta)
+            where TLogger : struct, ILogger
+            where TColor  : struct, IColor
         {
             _pvTable.Clear(ply: 0);
-
-            bool isWhiteToMove = _board.IsWhiteToMove;
 
             int maxPVCount = Math.Min(_manager.Settings.PVCount, rootMoves.Length);
             for (int pvIndex = 0; pvIndex < maxPVCount; pvIndex++)
@@ -62,8 +69,7 @@ namespace Azusayumi.Core.Search
                     if (_nodes > OutputLimit) { TLogger.LogCurrentMove(depth, move, i + 1); }
 
                     _board.MakeMove(move);
-                    int value = isWhiteToMove ? -AlphaBetaSearch<Black>(depth - 1, ply: 1, -beta, -alpha)
-                                              : -AlphaBetaSearch<White>(depth - 1, ply: 1, -beta, -alpha);
+                    int value = -OppositeAlphaBetaSearch<TColor>(depth - 1, ply: 1, -beta, -alpha);
                     _board.UnmakeMove(move);
 
                     if (_manager.IsOver) { return; }
