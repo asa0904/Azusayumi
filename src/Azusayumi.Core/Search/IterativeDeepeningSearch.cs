@@ -81,7 +81,17 @@ namespace Azusayumi.Core.Search
 
                         if (value > alpha && value < beta)
                         {
+#if COLLECT_STATS
+                            _statistics.ResearchCount++;
+                            long nodesBefore = _statistics.TotalNodes;
+#endif
+
                             value = -OppositePVSearch<TColor>(depth - 1, ply: 1, -beta, -alpha);
+
+#if COLLECT_STATS
+                            long nodesSpent = _statistics.TotalNodes - nodesBefore;
+                            _statistics.ResearchNodes += nodesSpent;
+#endif
                         }
                     }
 
