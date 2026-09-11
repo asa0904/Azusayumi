@@ -9,8 +9,8 @@ namespace Azusayumi.Core.Search
     {
         private const int Quiet = 0;
 
-        private const int SecondKiller = Quiet + 1;
-        private const int FirstKiller  = Quiet + 2;
+        private const int SecondKiller = HistoryTable.Max + 1;
+        private const int FirstKiller  = HistoryTable.Max + 2;
 
         private const int Kx = FirstKiller + 1;
         private const int Qx = Kx + 1;
@@ -61,7 +61,9 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Score(Span<ScoredMove> scoredMoves, Move firstKiller, Move secondKiller, Board board)
+        internal static void Score<TColor>(Span<ScoredMove> scoredMoves,
+            Move firstKiller, Move secondKiller, HistoryTable historyTable, Board board)
+            where TColor : struct, IColor
         {
             for (int i = 0; i < scoredMoves.Length; i++)
             {
@@ -87,7 +89,7 @@ namespace Azusayumi.Core.Search
                 }
                 else
                 {
-                    scoredMoves[i].Score = Quiet;
+                    scoredMoves[i].Score = historyTable.Read<TColor>(move.Key);
                 }
             }
         }

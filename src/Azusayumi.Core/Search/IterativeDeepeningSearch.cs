@@ -21,6 +21,8 @@ namespace Azusayumi.Core.Search
 
             if (rootMoves.Length == 0) { return default; }
 
+            _historyTable.Age();
+
 #if COLLECT_STATS
             _statistics.Reset();
 #endif
