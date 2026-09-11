@@ -14,7 +14,7 @@ namespace Azusayumi.Core.Search
 #if COLLECT_STATS
                 _statistics.HorizonNodes++;
 #endif
-                return Quiesce<TColor>(ply, alpha, beta);
+                return QuiescePV<TColor>(ply, alpha, beta);
             }
 
             _nodes++;

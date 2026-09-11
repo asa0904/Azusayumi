@@ -143,8 +143,8 @@ namespace Azusayumi.Core.Search
             const int Infinity = SearchWorker.Infinity;
 
             CopyPosition(board);
-            return board.IsWhiteToMove ? +_worker.Quiesce<White>(ply: 0, alpha: -Infinity, beta: Infinity)
-                                       : -_worker.Quiesce<Black>(ply: 0, alpha: -Infinity, beta: Infinity);
+            return board.IsWhiteToMove ? +_worker.QuiescePV<White>(ply: 0, alpha: -Infinity, beta: Infinity)
+                                       : -_worker.QuiescePV<Black>(ply: 0, alpha: -Infinity, beta: Infinity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

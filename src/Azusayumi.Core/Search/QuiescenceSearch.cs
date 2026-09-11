@@ -5,7 +5,7 @@ namespace Azusayumi.Core.Search
 {
     internal partial class SearchWorker
     {
-        internal int Quiesce<TColor>(int ply, int alpha, int beta) where TColor : struct, IColor
+        internal int QuiescePV<TColor>(int ply, int alpha, int beta) where TColor : struct, IColor
         {
             _nodes++;
             _pvTable.Clear(ply);
@@ -37,7 +37,7 @@ namespace Azusayumi.Core.Search
                 Move move = MoveOrdering.Select(i, scoredMoves);
 
                 _board.MakeMove<TColor>(move);
-                int value = TColor.IsWhite ? -Quiesce<Black>(ply + 1, -beta, -alpha) : -Quiesce<White>(ply + 1, -beta, -alpha);
+                int value = TColor.IsWhite ? -QuiescePV<Black>(ply + 1, -beta, -alpha) : -QuiescePV<White>(ply + 1, -beta, -alpha);
                 _board.UnmakeMove<TColor>(move);
 
                 if (value > bestValue)
