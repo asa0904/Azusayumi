@@ -11,6 +11,9 @@
         internal long QCutNodes;
         internal long FirstQCutNodes;
 
+        internal int  ResearchCount;
+        internal long ResearchNodes;
+
         private readonly long[] _nodesByDepth = new long[SearchWorker.MaxPly];
 
         internal long TotalNodes => InteriorNodes + QuiescentNodes;
@@ -31,6 +34,9 @@
             QCutNodes      = 0L;
             FirstQCutNodes = 0L;
 
+            ResearchCount = 0;
+            ResearchNodes = 0L;
+
             for (int i = 0; i < _nodesByDepth.Length; i++)
             {
                 _nodesByDepth[i] = 0L;
@@ -49,6 +55,8 @@
             Console.WriteLine($"First Cut Nodes   : {FirstCutNodes:N0} ({(double)FirstCutNodes / CutNodes * 100:F1}%)");
             Console.WriteLine($"Q-Cut Nodes       : {QCutNodes:N0}");
             Console.WriteLine($"First Q-Cut Nodes : {FirstQCutNodes:N0} ({(double)FirstQCutNodes / QCutNodes * 100:F1}%)");
+            Console.WriteLine($"Re-Search Count   : {ResearchCount:N0}");
+            Console.WriteLine($"Re-Search Nodes   : {ResearchNodes:N0}");
             PrintEffectiveBranchingFactor();
             Console.WriteLine($"--------------------------");
         }
