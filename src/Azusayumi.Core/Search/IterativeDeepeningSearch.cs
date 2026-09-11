@@ -69,7 +69,22 @@ namespace Azusayumi.Core.Search
                     if (_nodes > OutputLimit) { TLogger.LogCurrentMove(depth, move, i + 1); }
 
                     _board.MakeMove(move);
-                    int value = -OppositeAlphaBetaSearch<TColor>(depth - 1, ply: 1, -beta, -alpha);
+
+                    int value;
+                    if (i == 0)
+                    {
+                        value = -OppositePVSearch<TColor>(depth - 1, ply: 1, -beta, -alpha);
+                    }
+                    else
+                    {
+                        value = -OppositeNullWindowSearch<TColor>(depth - 1, ply: 1, -alpha);
+
+                        if (value > alpha && value < beta)
+                        {
+                            value = -OppositePVSearch<TColor>(depth - 1, ply: 1, -beta, -alpha);
+                        }
+                    }
+
                     _board.UnmakeMove(move);
 
                     if (_manager.IsOver) { return; }
