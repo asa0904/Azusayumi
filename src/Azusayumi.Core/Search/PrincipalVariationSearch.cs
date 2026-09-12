@@ -26,6 +26,12 @@ namespace Azusayumi.Core.Search
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
+            Move ttMove = Move.Null;
+            if (_transpositionTable.TryRead(_board.Key, out TTEntry ttEntry))
+            {
+                ttMove = ttEntry.Move;
+            }
+
             int      bestValue = -Infinity;
             Move     bestMove  = Move.Null;
             NodeType nodeType  = NodeType.All;
@@ -34,7 +40,7 @@ namespace Azusayumi.Core.Search
             MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply));
             MoveGenerator<TColor>.GenerateLegalMoves(ref buffer, _board, isInCheck);
             Span<ScoredMove> scoredMoves = buffer.AsSpan();
-            MoveOrdering.Score<TColor>(scoredMoves, _killerTable[ply, 0], _killerTable[ply, 1], _historyTable, _board);
+            MoveOrdering.Score<TColor>(scoredMoves, ttMove, _killerTable[ply, 0], _killerTable[ply, 1], _historyTable, _board);
 
             for (int i = 0; i < scoredMoves.Length; i++)
             {
@@ -131,6 +137,12 @@ namespace Azusayumi.Core.Search
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
+            Move ttMove = Move.Null;
+            if (_transpositionTable.TryRead(_board.Key, out TTEntry ttEntry))
+            {
+                ttMove = ttEntry.Move;
+            }
+
             int      bestValue = -Infinity;
             Move     bestMove  = Move.Null;
             NodeType nodeType  = NodeType.All;
@@ -139,7 +151,7 @@ namespace Azusayumi.Core.Search
             MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply));
             MoveGenerator<TColor>.GenerateLegalMoves(ref buffer, _board, isInCheck);
             Span<ScoredMove> scoredMoves = buffer.AsSpan();
-            MoveOrdering.Score<TColor>(scoredMoves, _killerTable[ply, 0], _killerTable[ply, 1], _historyTable, _board);
+            MoveOrdering.Score<TColor>(scoredMoves, ttMove, _killerTable[ply, 0], _killerTable[ply, 1], _historyTable, _board);
 
             for (int i = 0; i < scoredMoves.Length; i++)
             {

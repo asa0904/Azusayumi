@@ -25,6 +25,8 @@ namespace Azusayumi.Core.Search
         private const int R = 3 * PieceType.Length;
         private const int Q = 4 * PieceType.Length;
 
+        private const int TT = Px + Q + 1;
+
         private static readonly short[] _mvvLvaScores =
         [
             Px+P, Px+N, Px+B, Px+R, Px+Q, Quiet, Quiet, Quiet,
@@ -62,15 +64,20 @@ namespace Azusayumi.Core.Search
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Score<TColor>(Span<ScoredMove> scoredMoves,
-            Move firstKiller, Move secondKiller, HistoryTable historyTable, Board board)
+            Move ttMove, Move firstKiller, Move secondKiller, HistoryTable historyTable, Board board)
             where TColor : struct, IColor
         {
             for (int i = 0; i < scoredMoves.Length; i++)
             {
                 Move move = scoredMoves[i].Move;
 
-                int victim = board.GetPieceType(move.TargetIndex);
-                if (victim != PieceType.None && move.Type != MoveType.Castling)
+                int victim;
+                if (move == ttMove)
+                {
+                    scoredMoves[i].Score = TT;
+                }
+                else if ((victim = board.GetPieceType(move.TargetIndex)) != PieceType.None
+                      && move.Type != MoveType.Castling)
                 {
                     int attacker = board.GetPieceType(move.OriginIndex);
                     scoredMoves[i].Score = _mvvLvaScores[(attacker << 3) | victim];
