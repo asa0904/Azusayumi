@@ -140,6 +140,17 @@ namespace Azusayumi.Core.Search
             Move ttMove = Move.Null;
             if (_transpositionTable.TryRead(_board.Key, out TTEntry ttEntry))
             {
+                if (ttEntry.Depth >= depth)
+                {
+                    int ttValue = GetTTReadValue(ttEntry.Value, ply);
+                    if (ttEntry.NodeType == NodeType.PV
+                    || (ttEntry.NodeType == NodeType.Cut && ttValue >= beta)
+                    || (ttEntry.NodeType == NodeType.All && ttValue < beta))
+                    {
+                        return ttValue;
+                    }
+                }
+
                 ttMove = ttEntry.Move;
             }
 
