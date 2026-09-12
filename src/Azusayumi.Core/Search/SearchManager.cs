@@ -16,6 +16,8 @@ namespace Azusayumi.Core.Search
         private long _maxNodes;
         private readonly System.Diagnostics.Stopwatch _stopwatch;
 
+        private TranspositionTable _transpositionTable;
+
         private readonly SearchWorker         _worker;
         private readonly ManualResetEventSlim _stopSignal;
 
@@ -23,9 +25,10 @@ namespace Azusayumi.Core.Search
         {
             Settings = settings;
 
-            _stopwatch  = new System.Diagnostics.Stopwatch();
-            _worker     = new SearchWorker(this);
-            _stopSignal = new ManualResetEventSlim(initialState: false);
+            _stopwatch          = new System.Diagnostics.Stopwatch();
+            _transpositionTable = new(sizeMB: 32);
+            _worker             = new SearchWorker(this, _transpositionTable);
+            _stopSignal         = new ManualResetEventSlim(initialState: false);
         }
 
         internal bool IsOver
@@ -61,6 +64,7 @@ namespace Azusayumi.Core.Search
         public void ClearHash()
         {
             _worker.ClearHash();
+            _transpositionTable.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,6 +85,8 @@ namespace Azusayumi.Core.Search
             _totalTime = (conditions.Time / 20) + (conditions.Inc / 2);
             _moveTime  = conditions.MoveTime;
             _maxNodes  = conditions.Nodes;
+
+            _transpositionTable.Age();
 
             _worker.StartSearch();
         }

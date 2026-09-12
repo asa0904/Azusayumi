@@ -23,6 +23,8 @@ namespace Azusayumi.Core.Search
         private Thread? _searchThread;
         private readonly ManualResetEventSlim _startSignal;
 
+        private readonly TranspositionTable _transpositionTable;
+
         private readonly KillerTable  _killerTable  = new();
         private readonly HistoryTable _historyTable = new();
 
@@ -30,14 +32,15 @@ namespace Azusayumi.Core.Search
         private readonly SearchStatistics _statistics = new();
 #endif
 
-        internal SearchWorker(SearchManager manager)
+        internal SearchWorker(SearchManager manager, TranspositionTable transpositionTable)
         {
-            _manager       = manager;
-            _board         = new Board();
-            _moveArrayPool = new MoveArrayPool();
-            _pvTable       = new PVTable();
-            _rootMoves     = new RootMove[256];
-            _startSignal   = new ManualResetEventSlim(initialState: false);
+            _manager            = manager;
+            _board              = new Board();
+            _moveArrayPool      = new MoveArrayPool();
+            _pvTable            = new PVTable();
+            _rootMoves          = new RootMove[256];
+            _startSignal        = new ManualResetEventSlim(initialState: false);
+            _transpositionTable = transpositionTable;
             
             for (int i = 0; i < _rootMoves.Length; i++)
             {
