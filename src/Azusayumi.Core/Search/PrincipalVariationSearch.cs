@@ -26,8 +26,10 @@ namespace Azusayumi.Core.Search
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
-            int  bestValue = -Infinity;
-            bool isInCheck = _board.IsInCheck<TColor>();
+            int      bestValue = -Infinity;
+            Move     bestMove  = Move.Null;
+            NodeType nodeType  = NodeType.All;
+            bool     isInCheck = _board.IsInCheck<TColor>();
 
             MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply));
             MoveGenerator<TColor>.GenerateLegalMoves(ref buffer, _board, isInCheck);
@@ -72,6 +74,7 @@ namespace Azusayumi.Core.Search
                 if (value > bestValue)
                 {
                     bestValue = value;
+                    bestMove  = move;
 
                     if (value > alpha)
                     {
@@ -82,6 +85,8 @@ namespace Azusayumi.Core.Search
                             if (i == 0) { _statistics.FirstCutNodes++; }
 #endif
 
+                            nodeType = NodeType.Cut;
+
                             if (_board.IsQuiet(move))
                             {
                                 _killerTable.Write(move, ply);
@@ -91,6 +96,8 @@ namespace Azusayumi.Core.Search
                             break;
                         }
 
+                        nodeType = NodeType.PV;
+
                         alpha = value;
                         _pvTable.Write(ply, move);
                     }
@@ -98,6 +105,8 @@ namespace Azusayumi.Core.Search
             }
 
             if (scoredMoves.Length == 0) { return isInCheck ? -MateValue + ply : DrawValue; }
+
+            _transpositionTable.Write(_board.Key, GetTTWriteValue(bestValue, ply), bestMove, nodeType, depth);
 
             return bestValue;
         }
@@ -122,8 +131,10 @@ namespace Azusayumi.Core.Search
 
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
-            int  bestValue = -Infinity;
-            bool isInCheck = _board.IsInCheck<TColor>();
+            int      bestValue = -Infinity;
+            Move     bestMove  = Move.Null;
+            NodeType nodeType  = NodeType.All;
+            bool     isInCheck = _board.IsInCheck<TColor>();
 
             MoveBuffer buffer = new(_moveArrayPool.GetSpan(ply));
             MoveGenerator<TColor>.GenerateLegalMoves(ref buffer, _board, isInCheck);
@@ -143,6 +154,7 @@ namespace Azusayumi.Core.Search
                 if (value > bestValue)
                 {
                     bestValue = value;
+                    bestMove  = move;
 
                     if (value >= beta)
                     {
@@ -150,6 +162,8 @@ namespace Azusayumi.Core.Search
                         _statistics.CutNodes++;
                         if (i == 0) { _statistics.FirstCutNodes++; }
 #endif
+
+                        nodeType = NodeType.Cut;
 
                         if (_board.IsQuiet(move))
                         {
@@ -163,6 +177,8 @@ namespace Azusayumi.Core.Search
             }
 
             if (scoredMoves.Length == 0) { return isInCheck ? -MateValue + ply : DrawValue; }
+
+            _transpositionTable.Write(_board.Key, GetTTWriteValue(bestValue, ply), bestMove, nodeType, depth);
 
             return bestValue;
         }
