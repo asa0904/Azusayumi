@@ -55,6 +55,12 @@ namespace Azusayumi.Core.Search
             get => _worker.HighestDepth;
         }
 
+        internal int HashUsagePermille
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _transpositionTable.GetHashUsagePermille();
+        }
+
         public void Start<TLogger>() where TLogger : struct, ILogger
         {
             _worker.Start<TLogger>();

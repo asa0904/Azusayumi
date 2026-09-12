@@ -56,6 +56,11 @@ namespace Azusayumi.Cli
             nps.TryFormat(log[offset..], out written);
             offset += written;
 
+            " hashfull ".CopyTo(log[offset..]);
+            offset += " hashfull ".Length;
+            info.HashUsagePermille.TryFormat(log[offset..], out written);
+            offset += written;
+
             " time ".CopyTo(log[offset..]);
             offset += " time ".Length;
             info.Time.TryFormat(log[offset..], out written);

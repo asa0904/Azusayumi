@@ -6,5 +6,6 @@
         int  PVIndex,
         int  Score,
         long Nodes,
+        int  HashUsagePermille,
         long Time);
 }

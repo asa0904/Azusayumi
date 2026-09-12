@@ -54,6 +54,18 @@ namespace Azusayumi.Core.Search
             _generation += 4;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal int GetHashUsagePermille()
+        {
+            int count = 0;
+            for (int i = 0; i < 1000; i++)
+            {
+                if (_entries[i].Age == _generation) { count++; }
+            }
+
+            return count;
+        }
+
         internal void Clear()
         {
             for (int i = 0; i < _entries.Length; i++) { _entries[i] = default; }
