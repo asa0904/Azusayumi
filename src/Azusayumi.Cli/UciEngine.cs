@@ -29,6 +29,7 @@ namespace Azusayumi.Cli
 
             Console.WriteLine($"id name Azusayumi {version}");
             Console.WriteLine("id author Asato Kamamoto");
+            Console.WriteLine("option name Hash type spin default 32 min 1 max 262144");
             Console.WriteLine("option name Clear Hash type button");
             Console.WriteLine("option name Ponder type check default false");
             Console.WriteLine("option name MultiPV type spin default 1 min 1 max 256");
@@ -44,7 +45,18 @@ namespace Azusayumi.Cli
 
         internal void SetOption(ReadOnlySpan<char> name, ReadOnlySpan<char> value)
         {
-            if (name.SequenceEqual("Clear Hash"))
+            if (name.SequenceEqual("Hash"))
+            {
+                if (int.TryParse(value, out int sizeMB) && (sizeMB is >= 1 and <= 262144))
+                {
+                    _searchManager.SetHash(sizeMB);
+                }
+                else
+                {
+                    Console.WriteLine("Hash value must be between 1 and 262144.");
+                }
+            }
+            else if(name.SequenceEqual("Clear Hash"))
             {
                 _searchManager.ClearHash();
             }

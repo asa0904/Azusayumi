@@ -60,6 +60,12 @@ namespace Azusayumi.Core.Search
             _worker.Start<TLogger>();
         }
 
+        public void SetHash(int sizeMB)
+        {
+            Stop();
+            _transpositionTable = new TranspositionTable(sizeMB);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ClearHash()
         {
