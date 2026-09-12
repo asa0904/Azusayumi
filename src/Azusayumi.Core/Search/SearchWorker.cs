@@ -162,5 +162,35 @@ namespace Azusayumi.Core.Search
                 }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetTTReadValue(int value, int ply)
+        {
+            if (value > MateValue - MaxPly)
+            {
+                return value - ply;
+            }
+            else if (value < -(MateValue - MaxPly))
+            {
+                return value + ply;
+            }
+
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetTTWriteValue(int value, int ply)
+        {
+            if (value > MateValue - MaxPly)
+            {
+                return value + ply;
+            }
+            else if (value < -(MateValue - MaxPly))
+            {
+                return value - ply;
+            }
+
+            return value;
+        }
     }
 }
