@@ -83,6 +83,10 @@
             {
                 RunBenchmark(tokens);
             }
+            else if (token.SequenceEqual("tt"))
+            {
+                _engine.PrintTTEntry();
+            }
             else
             {
                 Console.WriteLine($"Unknown command: {token}");

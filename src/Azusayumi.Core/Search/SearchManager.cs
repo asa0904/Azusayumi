@@ -156,6 +156,11 @@ namespace Azusayumi.Core.Search
             return (NodesSpent, TimeSpent);
         }
 
+        public TTEntry GetTTEntry(Board board)
+        {
+            return _transpositionTable.TryRead(board.Key, out TTEntry entry) ? entry : default;
+        }
+
         public int GetQuiescentScore(Board board)
         {
             const int Infinity = SearchWorker.Infinity;

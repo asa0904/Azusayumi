@@ -171,6 +171,41 @@ namespace Azusayumi.Cli
             _traceContext.Print();
         }
 
+        internal void PrintTTEntry()
+        {
+            TTEntry entry = _searchManager.GetTTEntry(_board);
+
+            if (entry == default)
+            {
+                Console.WriteLine("null");
+                return;
+            }
+
+            string fen = _board.ToString();
+
+            System.Text.StringBuilder info = new();
+
+            info.Append($"depth {entry.Depth} ");
+            info.Append($"type {entry.NodeType} ");
+            info.Append($"value {entry.Value} ");
+            info.Append($"age {entry.Age} ");
+            info.Append("moves");
+
+            while (entry != default)
+            {
+                Move move = entry.Move;
+
+                info.Append($" {move.ToUciString()}");
+
+                _board.MakeMove(move);
+                entry = _searchManager.GetTTEntry(_board);
+            }
+
+            Console.WriteLine(info);
+
+            _board.Set(fen);
+        }
+
         internal void RunBenchmark(IEnumerable<string> fens, int depth)
         {
             int count = fens.Count();
