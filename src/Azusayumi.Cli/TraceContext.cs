@@ -27,13 +27,13 @@ namespace Azusayumi.Cli
         {
             static string ToString((int Mid, int End) score)
             {
-                return $"{score.Mid / 100.0,5:0.00}  {score.End / 100.0,5:0.00}";
+                return $"{score.Mid / 100.0,6:0.00}  {score.End / 100.0,6:0.00}";
             }
 
-            Console.WriteLine("+-------------------+--------------+--------------+--------------+");
-            Console.WriteLine("|      Feature      |     White    |     Black    |     Total    |");
-            Console.WriteLine("|                   |   MG    EG   |   MG    EG   |   MG    EG   |");
-            Console.WriteLine("+-------------------+--------------+--------------+--------------+");
+            Console.WriteLine("+-------------------+----------------+----------------+----------------+");
+            Console.WriteLine("|      Feature      |      White     |      Black     |      Total     |");
+            Console.WriteLine("|                   |    MG    EG    |    MG    EG    |    MG    EG    |");
+            Console.WriteLine("+-------------------+----------------+----------------+----------------+");
 
             (int Mid, int End) total = (0, 0);
             for (Term term = 0; term < Term.Length; term++)
@@ -41,15 +41,15 @@ namespace Azusayumi.Cli
                 (int Mid, int End) white = _whiteScores[(int)term];
                 (int Mid, int End) black = _blackScores[(int)term];
                 (int Mid, int End) diff  = (white.Mid - black.Mid, white.End - black.End);
-                Console.WriteLine($"| {term,17} | {ToString(white)} | {ToString(black)} | {ToString(diff)} |");
+                Console.WriteLine($"| {term,-17} | {ToString(white)} | {ToString(black)} | {ToString(diff)} |");
 
                 total.Mid += diff.Mid;
                 total.End += diff.End;
             }
 
-            Console.WriteLine( "+-------------------+--------------+--------------+--------------+");
-            Console.WriteLine($"|      Total        |  ----  ----  |  ----  ----  | {ToString(total)} |");
-            Console.WriteLine( "+-------------------+--------------+--------------+--------------+\n");
+            Console.WriteLine( "+-------------------+----------------+----------------+----------------+");
+            Console.WriteLine($"|      Total        |  -----  -----  |  -----  -----  | {ToString(total)} |");
+            Console.WriteLine( "+-------------------+----------------+----------------+----------------+\n");
         }
 
         internal void Clear()
