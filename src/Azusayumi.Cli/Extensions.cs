@@ -83,5 +83,13 @@ namespace Azusayumi.Cli
                 written = 5;
             }
         }
+
+        internal static string ToUciString(this Move move)
+        {
+            Span<char> uciMove = new char[move.Type == MoveType.Promotion ? 5 : 4];
+            move.Format(uciMove, out _);
+
+            return uciMove.ToString();
+        }
     }
 }
