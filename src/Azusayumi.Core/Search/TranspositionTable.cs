@@ -3,12 +3,12 @@ using System.Runtime.CompilerServices;
 
 namespace Azusayumi.Core.Search
 {
-    internal enum NodeType : byte
+    public enum NodeType : byte
     {
         PV, Cut, All
     }
 
-    internal record struct TTEntry(ulong Key, int Value, Move Move, ushort Age, NodeType NodeType, int Depth)
+    public record struct TTEntry(ulong Key, int Value, Move Move, ushort Age, NodeType NodeType, int Depth)
     {
         internal const int Size = 16;
     }
