@@ -15,10 +15,10 @@ namespace Azusayumi.Core.Search
         private int  _moveTime;
         private long _maxNodes;
         private readonly System.Diagnostics.Stopwatch _stopwatch;
-
+        
         private TranspositionTable _transpositionTable;
 
-        private readonly SearchWorker         _worker;
+        private SearchWorker[] _workers;
         private readonly ManualResetEventSlim _stopSignal;
 
         public SearchManager(SearchSettings settings)
@@ -27,8 +27,13 @@ namespace Azusayumi.Core.Search
 
             _stopwatch          = new System.Diagnostics.Stopwatch();
             _transpositionTable = new(sizeMB: 32);
-            _worker             = new SearchWorker(this);
             _stopSignal         = new ManualResetEventSlim(initialState: false);
+
+            _workers = new SearchWorker[1];
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                _workers[i] = new SearchWorker(this);
+            }
         }
 
         internal bool IsOver
@@ -46,13 +51,31 @@ namespace Azusayumi.Core.Search
         internal long NodesSpent
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _worker.NodesSpent;
+            get
+            {
+                long totalNodes = 0L;
+                for (int i = 0; i < _workers.Length; i++)
+                {
+                    totalNodes += _workers[i].NodesSpent;
+                }
+
+                return totalNodes;
+            }
         }
 
         internal int HighestDepth
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _worker.HighestDepth;
+            get
+            {
+                int highestDepth = 0;
+                for (int i = 0; i < _workers.Length; i++)
+                {
+                    highestDepth = Math.Max(highestDepth, _workers[i].HighestDepth);
+                }
+
+                return highestDepth;
+            }
         }
 
         internal TranspositionTable TranspositionTable
@@ -63,7 +86,11 @@ namespace Azusayumi.Core.Search
 
         public void Start<TLogger>() where TLogger : struct, ILogger
         {
-            _worker.Start<TLogger>();
+            _workers[0].Start<TLogger>();
+            for (int i = 1; i < _workers.Length; i++)
+            {
+                _workers[i].Start<NullLogger>();
+            }
         }
 
         public void SetHash(int sizeMB)
@@ -75,14 +102,21 @@ namespace Azusayumi.Core.Search
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ClearHash()
         {
-            _worker.ClearHash();
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                _workers[i].ClearHash();
+            }
+
             _transpositionTable.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CopyPosition(Board board)
         {
-            _worker.CopyPosition(board);
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                _workers[i].CopyPosition(board);
+            }
         }
 
         public void StartSearch(SearchConditions conditions)
@@ -100,8 +134,14 @@ namespace Azusayumi.Core.Search
 
             _transpositionTable.Age();
 
-            _worker.ResetCounters();
-            _worker.StartSearch();
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                _workers[i].ResetCounters();
+            }
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                _workers[i].StartSearch();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -129,7 +169,11 @@ namespace Azusayumi.Core.Search
         public void Quit()
         {
             Stop();
-            _worker.Dispose();
+            
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                _workers[i].Dispose();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -151,7 +195,7 @@ namespace Azusayumi.Core.Search
             _maxDepth = depth;
 
             _stopwatch.Restart();
-            _ = _worker.IterativeDeepeningSearch<NullLogger>();
+            _ = _workers[0].IterativeDeepeningSearch<NullLogger>();
             _stopwatch.Stop();
 
             return (NodesSpent, TimeSpent);
