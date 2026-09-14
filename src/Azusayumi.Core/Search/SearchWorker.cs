@@ -154,7 +154,6 @@ namespace Azusayumi.Core.Search
                 try
                 {
                     result = IterativeDeepeningSearch<TLogger>();
-                    _manager.WaitForStopSignal();
                 }
                 catch (Exception ex)
                 {
@@ -162,6 +161,7 @@ namespace Azusayumi.Core.Search
                 }
                 finally
                 {
+                    _manager.WaitForStopSignal();
                     TLogger.LogBestMove(result);
                     _startSignal.Reset();
                 }
