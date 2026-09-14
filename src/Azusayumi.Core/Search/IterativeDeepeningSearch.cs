@@ -8,9 +8,6 @@ namespace Azusayumi.Core.Search
 
         internal SearchResult IterativeDeepeningSearch<TLogger>() where TLogger : struct, ILogger
         {
-            _nodes = 0L;
-            _highestDepth = 0;
-
             bool isWhiteToMove = _board.IsWhiteToMove;
             bool isInCheck     = isWhiteToMove ? _board.IsInCheck<White>() : _board.IsInCheck<Black>();
 

@@ -100,6 +100,7 @@ namespace Azusayumi.Core.Search
 
             _transpositionTable.Age();
 
+            _worker.ResetCounters();
             _worker.StartSearch();
         }
 

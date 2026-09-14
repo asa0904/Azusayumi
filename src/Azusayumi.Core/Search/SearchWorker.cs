@@ -137,6 +137,13 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ResetCounters()
+        {
+            _nodes = 0L;
+            _highestDepth = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void StartSearch()
         {
             _startSignal.Set();
