@@ -1,5 +1,4 @@
 ﻿using Azusayumi.Core.GameLogic;
-using Azusayumi.Core.Search;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -7,10 +6,9 @@ namespace Azusayumi.DatasetBuilder
 {
     internal partial class DatasetBuilder(bool append, int maxScore)
     {
-        private readonly bool          _append        = append;
-        private readonly int           _maxScore      = maxScore;
-        private readonly Board         _board         = new();
-        private readonly SearchManager _searchManager = new(new SearchSettings());
+        private readonly bool  _append   = append;
+        private readonly int   _maxScore = maxScore;
+        private readonly Board _board    = new();
 
         internal void Build(string source, string output)
         {
@@ -62,7 +60,7 @@ namespace Azusayumi.DatasetBuilder
                 if (BookOrMateRegex().IsMatch(comment)) { continue; }
 
                 int score = Core.Evaluation.Evaluator.Evaluate(_board);
-                if (score != _searchManager.GetQuiescentScore(_board)) { continue; }
+                if (score != QuiescenceSearch.GetScore(_board)) { continue; }
 
                 if (Math.Abs(score) > _maxScore) { continue; }
 
