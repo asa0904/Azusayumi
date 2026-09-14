@@ -161,15 +161,6 @@ namespace Azusayumi.Core.Search
             return _transpositionTable.TryRead(board.Key, out TTEntry entry) ? entry : default;
         }
 
-        public int GetQuiescentScore(Board board)
-        {
-            const int Infinity = SearchWorker.Infinity;
-
-            CopyPosition(board);
-            return board.IsWhiteToMove ? +_worker.QuiescePV<White>(ply: 0, alpha: -Infinity, beta: Infinity)
-                                       : -_worker.QuiescePV<Black>(ply: 0, alpha: -Infinity, beta: Infinity);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool ShouldExitIteration(int depth)
         {
