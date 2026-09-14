@@ -27,7 +27,7 @@ namespace Azusayumi.Core.Search
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
             Move ttMove = Move.Null;
-            if (_transpositionTable.TryRead(_board.Key, out TTEntry ttEntry))
+            if (_manager.TranspositionTable.TryRead(_board.Key, out TTEntry ttEntry))
             {
                 ttMove = ttEntry.Move;
             }
@@ -112,7 +112,7 @@ namespace Azusayumi.Core.Search
 
             if (scoredMoves.Length == 0) { return isInCheck ? -MateValue + ply : DrawValue; }
 
-            _transpositionTable.Write(_board.Key, GetTTWriteValue(bestValue, ply), bestMove, nodeType, depth);
+            _manager.TranspositionTable.Write(_board.Key, GetTTWriteValue(bestValue, ply), bestMove, nodeType, depth);
 
             return bestValue;
         }
@@ -138,7 +138,7 @@ namespace Azusayumi.Core.Search
             if (_board.IsDraw() || ply >= MaxPly) { return DrawValue; }
 
             Move ttMove = Move.Null;
-            if (_transpositionTable.TryRead(_board.Key, out TTEntry ttEntry))
+            if (_manager.TranspositionTable.TryRead(_board.Key, out TTEntry ttEntry))
             {
                 if (ttEntry.Depth >= depth)
                 {
@@ -201,7 +201,7 @@ namespace Azusayumi.Core.Search
 
             if (scoredMoves.Length == 0) { return isInCheck ? -MateValue + ply : DrawValue; }
 
-            _transpositionTable.Write(_board.Key, GetTTWriteValue(bestValue, ply), bestMove, nodeType, depth);
+            _manager.TranspositionTable.Write(_board.Key, GetTTWriteValue(bestValue, ply), bestMove, nodeType, depth);
 
             return bestValue;
         }

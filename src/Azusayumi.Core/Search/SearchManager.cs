@@ -27,7 +27,7 @@ namespace Azusayumi.Core.Search
 
             _stopwatch          = new System.Diagnostics.Stopwatch();
             _transpositionTable = new(sizeMB: 32);
-            _worker             = new SearchWorker(this, _transpositionTable);
+            _worker             = new SearchWorker(this);
             _stopSignal         = new ManualResetEventSlim(initialState: false);
         }
 
@@ -55,10 +55,10 @@ namespace Azusayumi.Core.Search
             get => _worker.HighestDepth;
         }
 
-        internal int HashUsagePermille
+        internal TranspositionTable TranspositionTable
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _transpositionTable.GetHashUsagePermille();
+            get => _transpositionTable;
         }
 
         public void Start<TLogger>() where TLogger : struct, ILogger

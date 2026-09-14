@@ -119,7 +119,7 @@ namespace Azusayumi.Core.Search
                                 HighestDepth      = _manager.HighestDepth,
                                 Score             = bestValue,
                                 Nodes             = _manager.NodesSpent,
-                                HashUsagePermille = _manager.HashUsagePermille,
+                                HashUsagePermille = _manager.TranspositionTable.GetHashUsagePermille(),
                                 Time              = _manager.TimeSpent,
                             };
                             for (int j = 0; j < maxPVCount; j++)
@@ -138,7 +138,7 @@ namespace Azusayumi.Core.Search
                     PVIndex           = pvIndex + 1,
                     Score             = bestValue,
                     Nodes             = _manager.NodesSpent,
-                    HashUsagePermille = _manager.HashUsagePermille,
+                    HashUsagePermille = _manager.TranspositionTable.GetHashUsagePermille(),
                     Time              = _manager.TimeSpent,
                 };
             }
