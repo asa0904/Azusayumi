@@ -32,7 +32,7 @@ namespace Azusayumi.Core.Search
             _workers = new SearchWorker[1];
             for (int i = 0; i < _workers.Length; i++)
             {
-                _workers[i] = new SearchWorker(this);
+                _workers[i] = new SearchWorker(threadId: i, manager: this);
             }
         }
 

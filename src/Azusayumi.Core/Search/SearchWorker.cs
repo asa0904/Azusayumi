@@ -13,6 +13,7 @@ namespace Azusayumi.Core.Search
         private long _nodes;
         private int  _highestDepth;
 
+        private readonly int           _threadId;
         private readonly SearchManager _manager;
         private readonly Board         _board;
         private readonly MoveArrayPool _moveArrayPool;
@@ -30,8 +31,9 @@ namespace Azusayumi.Core.Search
         private readonly SearchStatistics _statistics = new();
 #endif
 
-        internal SearchWorker(SearchManager manager)
+        internal SearchWorker(int threadId, SearchManager manager)
         {
+            _threadId      = threadId;
             _manager       = manager;
             _board         = new Board();
             _moveArrayPool = new MoveArrayPool();
@@ -100,7 +102,7 @@ namespace Azusayumi.Core.Search
             _searchThread = new Thread(SearchLoop<TLogger>)
             {
                 IsBackground = true,
-                Name         = "SearchThread",
+                Name         = $"SearchThread({_threadId})",
                 Priority     = ThreadPriority.Normal,
             };
             _searchThread.Start();
