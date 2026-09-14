@@ -97,7 +97,12 @@ namespace Azusayumi.Core.Search
         {
             if (_searchThread is not null) { return; }
 
-            _searchThread = new Thread(SearchLoop<TLogger>);
+            _searchThread = new Thread(SearchLoop<TLogger>)
+            {
+                IsBackground = true,
+                Name         = "SearchThread",
+                Priority     = ThreadPriority.Normal,
+            };
             _searchThread.Start();
         }
 
