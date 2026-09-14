@@ -41,7 +41,7 @@ namespace Azusayumi.Core.Search
             }
 
 #if COLLECT_STATS
-            _statistics.Print();
+            if (_threadId == 0) { _statistics.Print(); }
 #endif
 
             RootMove bestMove = rootMoves[0];
@@ -108,7 +108,7 @@ namespace Azusayumi.Core.Search
 
                         MoveOrdering.InsertBefore(from: i, to: pvIndex, rootMoves);
 
-                        if (_nodes > OutputLimit)
+                        if (_threadId == 0 && _nodes > OutputLimit)
                         {
                             rootMoves[pvIndex].Info = new()
                             {
@@ -127,6 +127,8 @@ namespace Azusayumi.Core.Search
                         }
                     }
                 }
+
+                if (_threadId != 0) { continue; }
 
                 rootMoves[pvIndex].Info = new()
                 {

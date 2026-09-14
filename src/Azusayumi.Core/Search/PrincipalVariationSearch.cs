@@ -7,7 +7,7 @@ namespace Azusayumi.Core.Search
     {
         private int PVSearch<TColor>(int depth, int ply, int alpha, int beta) where TColor : struct, IColor
         {
-            if ((_nodes & 1023) == 0 && _manager.ShouldStop()) { return DrawValue; }
+            if (_threadId == 0 && (_nodes & 1023) == 0 && _manager.ShouldStop()) { return DrawValue; }
 
             if (depth == 0)
             {
@@ -119,7 +119,7 @@ namespace Azusayumi.Core.Search
 
         private int NullWindowSearch<TColor>(int depth, int ply, int beta) where TColor : struct, IColor
         {
-            if ((_nodes & 1023) == 0 && _manager.ShouldStop()) { return DrawValue; }
+            if (_threadId == 0 && (_nodes & 1023) == 0 && _manager.ShouldStop()) { return DrawValue; }
 
             if (depth == 0)
             {

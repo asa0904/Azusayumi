@@ -12,7 +12,7 @@ namespace Azusayumi.Core.Search
 
         private long _nodes;
         private int  _highestDepth;
-
+        
         private readonly int           _threadId;
         private readonly SearchManager _manager;
         private readonly Board         _board;
@@ -170,7 +170,7 @@ namespace Azusayumi.Core.Search
                 }
                 finally
                 {
-                    _manager.WaitForStopSignal();
+                    if (_threadId == 0) { _manager.WaitForStopSignal(); }
                     TLogger.LogBestMove(result);
                     _startSignal.Reset();
                 }
