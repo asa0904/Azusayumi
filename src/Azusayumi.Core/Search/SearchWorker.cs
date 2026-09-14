@@ -13,6 +13,7 @@ namespace Azusayumi.Core.Search
         private long _nodes;
         private int  _highestDepth;
         
+        private volatile bool          _isSearching;
         private readonly int           _threadId;
         private readonly SearchManager _manager;
         private readonly Board         _board;
@@ -81,6 +82,12 @@ namespace Azusayumi.Core.Search
             {
                 return _moves.AsSpan().Slice(ply * MaxLength, MaxLength);
             }
+        }
+
+        internal bool IsSearching
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _isSearching;
         }
 
         internal long NodesSpent
@@ -159,6 +166,8 @@ namespace Azusayumi.Core.Search
 
                 if (_exitEngine) { break; }
 
+                _isSearching = true;
+
                 SearchResult result = default;
                 try
                 {
@@ -170,6 +179,8 @@ namespace Azusayumi.Core.Search
                 }
                 finally
                 {
+                    _isSearching = false;
+                    
                     if (_threadId == 0) { _manager.WaitForStopSignal(); }
                     TLogger.LogBestMove(result);
                     _startSignal.Reset();

@@ -239,6 +239,28 @@ namespace Azusayumi.Core.Search
         internal void WaitForStopSignal()
         {
             if (_isInfinite) { _stopSignal.Wait(); }
+
+            if (!IsAnySearching()) { return; }
+
+            int count = 0;
+            SpinWait spinWait = new();
+            do
+            {
+                spinWait.SpinOnce();
+                count++;
+            }
+            while (IsAnySearching());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsAnySearching()
+        {
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                if (_workers[i].IsSearching) { return true; }
+            }
+
+            return false;
         }
     }
 }
