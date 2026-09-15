@@ -4,20 +4,26 @@ It is currently a baseline implementation featuring only basic search algorithms
 
 ## Features
 ### Board Representation
-* Bitboards with Little-Endian Rank-File Mapping
-* Black Magic Bitboards
+- Bitboards with Little-Endian Rank-File Mapping
+- Black Magic Bitboards
 ### Search
-* Iterative Deepening
-* Alpha-Beta Search
-* Quiescence Search
-* Move Ordering
+- Iterative Deepening
+- Principal Variation Search
+- Quiescence Search
+- Transposition Table
+- Move Ordering
+  - Hash Move
+  - MVV-LVA
+  - Killer Move
+  - History Heuristic
+- Lazy SMP
 ### Evaluation
-* Material
-* Piece-Square Tables
-* Mobility
+- Material
+- Piece-Square Tables
+- Mobility
 ### Automated Tuning
-* Logistic Regression
-* Adam
+- Logistic Regression
+- Adam
 
 ## Build
 With the .NET 10 SDK installed, run:
