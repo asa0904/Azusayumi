@@ -236,7 +236,7 @@ namespace Azusayumi.Core.Search
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void WaitForStopSignal()
+        internal void WaitForSearchComplete()
         {
             if (_isInfinite) { _stopSignal.Wait(); }
 

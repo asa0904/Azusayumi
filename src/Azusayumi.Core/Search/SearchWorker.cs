@@ -181,7 +181,7 @@ namespace Azusayumi.Core.Search
                 {
                     _isSearching = false;
                     
-                    if (_threadId == 0) { _manager.WaitForStopSignal(); }
+                    if (_threadId == 0) { _manager.WaitForSearchComplete(); }
                     TLogger.LogBestMove(result);
                     _startSignal.Reset();
                 }
