@@ -24,7 +24,7 @@ namespace Azusayumi.Core.Search
             _statistics.Reset();
 #endif
 
-            for (int depth = 1; !_manager.ShouldExitIteration(depth); depth++)
+            for (int depth = 1 + (_threadId >> 1); !_manager.ShouldExitIteration(depth); depth++)
             {
                 if (isWhiteToMove)
                 {
