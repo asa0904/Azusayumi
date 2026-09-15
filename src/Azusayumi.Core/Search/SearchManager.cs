@@ -206,6 +206,8 @@ namespace Azusayumi.Core.Search
         {
             _isOver   = false;
             _maxDepth = depth;
+            
+            _workers[0].ResetCounters();
 
             _stopwatch.Restart();
             _ = _workers[0].IterativeDeepeningSearch<NullLogger>();
