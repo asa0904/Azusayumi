@@ -93,6 +93,19 @@ namespace Azusayumi.Core.Search
             }
         }
 
+        public void SetThreads<TLogger>(int threads) where TLogger : struct, ILogger
+        {
+            Quit();
+
+            _workers = new SearchWorker[threads];
+            for (int i = 0; i < _workers.Length; i++)
+            {
+                _workers[i] = new SearchWorker(threadId: i, manager: this);
+            }
+
+            Start<TLogger>();
+        }
+
         public void SetHash(int sizeMB)
         {
             Stop();
